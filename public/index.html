@@ -19,6 +19,7 @@
             --accent-red: #ff3b30;
             --accent-purple: #9d4edd;
             --accent-cyan: #00c7e5;
+            --accent-pink: #ff2d55;
             --border-color: #d2d2d7;
             --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.1);
@@ -143,6 +144,8 @@
             background: var(--bg-tertiary);
             border-radius: var(--element-radius);
             padding: 5px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .tab {
@@ -154,6 +157,8 @@
             transition: var(--transition);
             font-weight: 500;
             color: var(--text-secondary);
+            min-width: 120px;
+            white-space: nowrap;
         }
 
         .tab.active {
@@ -274,6 +279,11 @@
         
         .btn-cyan {
             background: var(--accent-cyan);
+            color: white;
+        }
+        
+        .btn-pink {
+            background: var(--accent-pink);
             color: white;
         }
 
@@ -786,6 +796,98 @@
             font-size: 14px;
         }
         
+        /* ===== 新闻链接工具样式 ===== */
+        .news-link-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .link-item {
+            display: flex;
+            align-items: center;
+            background: var(--bg-tertiary);
+            border-radius: var(--element-radius);
+            padding: 15px;
+            transition: var(--transition);
+        }
+        
+        .link-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .link-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .link-icon i {
+            color: white;
+            font-size: 18px;
+        }
+        
+        .link-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .link-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .link-url {
+            color: var(--accent-blue);
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .link-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .link-btn {
+            padding: 8px 15px;
+            border-radius: var(--element-radius);
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+        
+        .link-btn.copy {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .link-btn.copy:hover {
+            background: var(--accent-purple);
+            color: white;
+        }
+        
+        .link-btn.open {
+            background: var(--accent-green);
+            color: white;
+        }
+        
         /* ===== 页脚样式 ===== */
         .footer {
             text-align: center;
@@ -840,6 +942,16 @@
             .fixed-button {
                 font-size: 13px;
                 padding: 8px 12px;
+            }
+            
+            .link-item {
+                flex-wrap: wrap;
+            }
+            
+            .link-actions {
+                width: 100%;
+                margin-top: 10px;
+                justify-content: flex-end;
             }
         }
 
@@ -907,6 +1019,7 @@
         <div class="tabs-container">
             <div class="tab active" data-tab="item-converter">物品转换</div>
             <div class="tab" data-tab="mail-template">邮件模板</div>
+            <div class="tab" data-tab="news-generator">新闻链接</div>
         </div>
 
         <!-- 物品转换工具 -->
@@ -1156,6 +1269,62 @@ server id   role id   sdk open id
             </div>
         </div>
         
+        <!-- 新闻链接工具 -->
+        <div id="news-generator" class="tool-container" style="display: none;">
+            <!-- 输入区域卡片 -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            <i class="fas fa-link"></i>
+                            新闻链接生成工具
+                        </div>
+                        <div class="card-subtitle">输入新闻ID，生成多文言环境的新闻链接</div>
+                    </div>
+                </div>
+                <div class="input-section">
+                    <div class="search-box">
+                        <i class="fas fa-hashtag"></i>
+                        <input type="text" id="newsIdInput" placeholder="请输入新闻ID">
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" id="generateNewsBtn">
+                            <i class="fas fa-bolt"></i>
+                            生成链接
+                        </button>
+                        <button class="btn btn-pink" id="copyAllLinksBtn">
+                            <i class="fas fa-copy"></i>
+                            复制所有链接
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 结果区域卡片 -->
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            <i class="fas fa-globe"></i>
+                            多文言新闻链接
+                        </div>
+                        <div class="card-subtitle">已生成不同文言环境的新闻链接</div>
+                    </div>
+                </div>
+                
+                <div id="newsResultsContainer">
+                    <div class="empty-state" id="newsEmptyState">
+                        <i class="fas fa-newspaper"></i>
+                        <h3>等待生成链接</h3>
+                        <p>在输入框中输入新闻ID并点击"生成链接"按钮</p>
+                    </div>
+                    
+                    <div class="news-link-container" id="newsLinksContainer" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+        
         <!-- 成功消息提示 -->
         <div class="success-msg" id="successMsg">
             <i class="fas fa-check-circle"></i>
@@ -1195,7 +1364,10 @@ server id   role id   sdk open id
                 finalData: null,
                 duplicates: {},
                 conflicts: {}
-            }
+            },
+            
+            // 新闻链接工具状态
+            newsLinks: []
         };
 
         // ================ DOM 元素引用 ================
@@ -1240,12 +1412,21 @@ server id   role id   sdk open id
             conflictList: document.getElementById('conflictList'),
             copyAllRolesBtn: document.getElementById('copyAllRolesBtn'),
             
+            // 新闻链接工具
+            newsIdInput: document.getElementById('newsIdInput'),
+            generateNewsBtn: document.getElementById('generateNewsBtn'),
+            newsLinksContainer: document.getElementById('newsLinksContainer'),
+            newsEmptyState: document.getElementById('newsEmptyState'),
+            copyAllLinksBtn: document.getElementById('copyAllLinksBtn'),
+            
             // 选项卡
             tabs: document.querySelectorAll('.tab'),
             itemConverterTab: document.querySelector('[data-tab="item-converter"]'),
             mailTemplateTab: document.querySelector('[data-tab="mail-template"]'),
+            newsGeneratorTab: document.querySelector('[data-tab="news-generator"]'),
             itemConverterContainer: document.getElementById('item-converter'),
-            mailTemplateContainer: document.getElementById('mail-template')
+            mailTemplateContainer: document.getElementById('mail-template'),
+            newsGeneratorContainer: document.getElementById('news-generator')
         };
 
         // ================ 工具函数 ================
@@ -1266,12 +1447,15 @@ server id   role id   sdk open id
         /**
          * 显示错误消息
          * @param {string} msg - 要显示的错误消息
-         * @param {string} tool - 工具名称 ('item' 或 'mail')
+         * @param {string} tool - 工具名称 ('item', 'mail' 或 'news')
          */
         function showErrorMsg(msg, tool = 'item') {
             if (tool === 'mail') {
                 DOM.mailErrorText.textContent = msg;
                 DOM.mailErrorMsg.classList.add('show');
+            } else if (tool === 'news') {
+                // 新闻工具没有专门的错误消息区域，使用通用提示
+                alert(`错误: ${msg}`);
             } else {
                 DOM.errorText.textContent = msg;
                 DOM.errorMsg.classList.add('show');
@@ -1280,7 +1464,7 @@ server id   role id   sdk open id
             setTimeout(() => {
                 if (tool === 'mail') {
                     DOM.mailErrorMsg.classList.remove('show');
-                } else {
+                } else if (tool === 'item') {
                     DOM.errorMsg.classList.remove('show');
                 }
             }, 4000);
@@ -2208,6 +2392,133 @@ server id   role id   sdk open id
             copyToClipboard(allRoleIds.join(','), DOM.copyAllRolesBtn);
         }
 
+        // ================ 新闻链接工具函数 ================
+        /**
+         * 生成新闻链接
+         */
+        function generateNewsLinks() {
+            const newsId = DOM.newsIdInput.value.trim();
+            
+            if (!newsId) {
+                showErrorMsg('请输入新闻ID', 'news');
+                return;
+            }
+            
+            // 定义多文言环境的URL模板
+            const urlTemplates = [
+                { name: "越南", lang: "vi", url: `https://www.coaaction.vn/?news-id=${newsId}` },
+                { name: "台湾", lang: "zh-TW", url: `https://coatw.com/?news-id=${newsId}` },
+                { name: "国际(英文)", lang: "en", url: `https://coa.nvsgames.com/?news-id=${newsId}` },
+                { name: "日文", lang: "ja", url: `https://coa.nvsgames.com/ja-JP?news-id=${newsId}` },
+                { name: "德文", lang: "de", url: `https://coa.nvsgames.com/de_DE?news-id=${newsId}` },
+                { name: "法文", lang: "fr", url: `https://coa.nvsgames.com/fr-FR?news-id=${newsId}` },
+                { name: "韩文", lang: "ko", url: `https://coa.nvsgames.com/ko_KR?news-id=${newsId}` },
+                { name: "葡语", lang: "pt-BR", url: `https://coa.nvsgames.com/pt-BR?news-id=${newsId}` },
+                { name: "西语", lang: "es-AR", url: `https://coa.nvsgames.com/es-AR?news-id=${newsId}` },
+                { name: "泰文", lang: "th", url: `https://coa.nvsgames.com/th-TH?news-id=${newsId}` },
+                { name: "印度尼西亚", lang: "id", url: `https://coa.nvsgames.com/id-ID?news-id=${newsId}` },
+                { name: "沙盒环境", lang: "sandbox", url: `https://oasis-act.byteintl.net/?language=en-US&news-id=${newsId}` }
+            ];
+            
+            // 保存链接
+            AppState.newsLinks = urlTemplates;
+            
+            // 渲染链接
+            renderNewsLinks();
+            
+            // 隐藏空状态
+            DOM.newsEmptyState.style.display = 'none';
+            DOM.newsLinksContainer.style.display = 'flex';
+        }
+        
+        /**
+         * 渲染新闻链接
+         */
+        function renderNewsLinks() {
+            DOM.newsLinksContainer.innerHTML = '';
+            
+            AppState.newsLinks.forEach(link => {
+                const linkItem = document.createElement('div');
+                linkItem.className = 'link-item fade-in';
+                
+                // 根据文言设置图标颜色
+                let iconColor = '';
+                let iconClass = 'fas fa-globe';
+                
+                if (link.lang === 'sandbox') {
+                    iconColor = 'var(--accent-orange)';
+                    iconClass = 'fas fa-flask';
+                } else if (link.lang === 'vi') {
+                    iconColor = '#da251d';
+                } else if (link.lang === 'zh-TW') {
+                    iconColor = '#fe0000';
+                } else if (link.lang === 'en') {
+                    iconColor = '#0038b8';
+                } else if (link.lang === 'ja') {
+                    iconColor = '#bc002d';
+                } else if (link.lang === 'de') {
+                    iconColor = '#000000';
+                } else if (link.lang === 'fr') {
+                    iconColor = '#0055a4';
+                } else if (link.lang === 'ko') {
+                    iconColor = '#c60c30';
+                } else if (link.lang === 'pt-BR') {
+                    iconColor = '#009c3b';
+                } else if (link.lang === 'es-AR') {
+                    iconColor = '#75aadb';
+                } else if (link.lang === 'th') {
+                    iconColor = '#a51931';
+                } else if (link.lang === 'id') {
+                    iconColor = '#ce1126';
+                }
+                
+                linkItem.innerHTML = `
+                    <div class="link-icon" style="background: ${iconColor}">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div class="link-content">
+                        <div class="link-title">${link.name}</div>
+                        <div class="link-url">${link.url}</div>
+                    </div>
+                    <div class="link-actions">
+                        <button class="link-btn copy">
+                            <i class="fas fa-copy"></i> 复制
+                        </button>
+                        <button class="link-btn open">
+                            <i class="fas fa-external-link-alt"></i> 打开
+                        </button>
+                    </div>
+                `;
+                
+                // 添加复制功能
+                const copyBtn = linkItem.querySelector('.copy');
+                copyBtn.addEventListener('click', () => {
+                    copyToClipboard(link.url, copyBtn);
+                });
+                
+                // 添加打开链接功能
+                const openBtn = linkItem.querySelector('.open');
+                openBtn.addEventListener('click', () => {
+                    window.open(link.url, '_blank');
+                });
+                
+                DOM.newsLinksContainer.appendChild(linkItem);
+            });
+        }
+        
+        /**
+         * 复制所有新闻链接
+         */
+        function copyAllNewsLinks() {
+            if (AppState.newsLinks.length === 0) {
+                showErrorMsg('没有可复制的链接', 'news');
+                return;
+            }
+            
+            const textToCopy = AppState.newsLinks.map(link => `${link.name}: ${link.url}`).join('\n');
+            copyToClipboard(textToCopy, DOM.copyAllLinksBtn);
+        }
+
         // ================ 选项卡切换 ================
         /**
          * 切换工具选项卡
@@ -2225,9 +2536,15 @@ server id   role id   sdk open id
             if (tabName === 'item-converter') {
                 DOM.itemConverterContainer.style.display = 'block';
                 DOM.mailTemplateContainer.style.display = 'none';
+                DOM.newsGeneratorContainer.style.display = 'none';
             } else if (tabName === 'mail-template') {
                 DOM.itemConverterContainer.style.display = 'none';
                 DOM.mailTemplateContainer.style.display = 'block';
+                DOM.newsGeneratorContainer.style.display = 'none';
+            } else if (tabName === 'news-generator') {
+                DOM.itemConverterContainer.style.display = 'none';
+                DOM.mailTemplateContainer.style.display = 'none';
+                DOM.newsGeneratorContainer.style.display = 'block';
             }
         }
 
@@ -2267,6 +2584,17 @@ server id   role id   sdk open id
             DOM.mailClearBtn.addEventListener('click', clearMailData);
             DOM.mailExampleBtn.addEventListener('click', loadMailExample);
             DOM.copyAllRolesBtn.addEventListener('click', copyAllRoleIds);
+            
+            // 新闻链接工具事件
+            DOM.generateNewsBtn.addEventListener('click', generateNewsLinks);
+            DOM.copyAllLinksBtn.addEventListener('click', copyAllNewsLinks);
+            
+            // 新闻ID输入框回车键支持
+            DOM.newsIdInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    generateNewsLinks();
+                }
+            });
             
             // 选项卡事件
             DOM.tabs.forEach(tab => {
