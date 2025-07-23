@@ -1,4 +1,3 @@
-<!-- 本地开发版本 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -285,6 +284,16 @@
         
         .btn-pink {
             background: var(--accent-pink);
+            color: white;
+        }
+        
+        .btn-green {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .btn-red {
+            background: var(--accent-red);
             color: white;
         }
 
@@ -889,6 +898,106 @@
             color: white;
         }
         
+        /* ===== 货币转换工具样式 ===== */
+        .currency-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: var(--element-radius);
+        }
+        
+        .currency-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .currency-flag {
+            width: 24px;
+            height: 16px;
+            background-size: cover;
+            border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .results-section {
+            overflow-x: auto;
+        }
+        
+        .currency-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .currency-table th {
+            background: var(--accent-blue);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+        
+        .currency-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .currency-table tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        .dark-mode .currency-table tr:nth-child(even) {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .currency-table tr:hover {
+            background-color: rgba(0, 113, 227, 0.05);
+        }
+        
+        .price-original {
+            color: var(--accent-purple);
+            font-weight: 600;
+        }
+        
+        .price-usd {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            background: var(--bg-tertiary);
+            padding: 10px 15px;
+            border-radius: var(--element-radius);
+            flex: 1;
+            min-width: 250px;
+            gap: 10px;
+        }
+        
+        .control-group label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        
+        input[type="number"], select {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--element-radius);
+            min-width: 100px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
         /* ===== 页脚样式 ===== */
         .footer {
             text-align: center;
@@ -976,6 +1085,12 @@
                 font-size: 13px;
             }
             
+            .currency-table th,
+            .currency-table td {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+            
             .fixed-button-container {
                 width: calc(100% - 40px);
                 flex-direction: column;
@@ -995,6 +1110,10 @@
             
             .tabs-container {
                 flex-direction: column;
+            }
+            
+            .control-group {
+                min-width: 100%;
             }
         }
     </style>
@@ -1021,6 +1140,7 @@
             <div class="tab active" data-tab="item-converter">物品转换</div>
             <div class="tab" data-tab="mail-template">邮件模板</div>
             <div class="tab" data-tab="news-generator">新闻链接</div>
+            <div class="tab" data-tab="currency-converter">货币转换</div>
         </div>
 
         <!-- 物品转换工具 -->
@@ -1326,6 +1446,153 @@ server id   role id   sdk open id
             </div>
         </div>
         
+        <!-- 货币转换工具 -->
+        <div id="currency-converter" class="tool-container" style="display: none;">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            <i class="fas fa-money-bill-wave"></i>
+                            货币价格格式化工具
+                        </div>
+                        <div class="card-subtitle">粘贴错行的商品名称和价格数据，系统将自动格式化并按价格排序</div>
+                    </div>
+                </div>
+                <div class="input-section">
+                    <textarea id="currencyInput" placeholder="请粘贴商品数据，格式如：
+แพ็กเกจให้พร
+฿179.00
+60 Genesis Crystals
+NT$35.00
+BP อัศวิน
+S$349.00
+300 Genesis Crystals
+Rp179,000
+980 Genesis Crystals
+¥549.00
+..."></textarea>
+                    
+                    <div class="error-msg" id="currencyErrorMsg">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span id="currencyErrorText"></span>
+                    </div>
+                    
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="sourceCurrency">源货币:</label>
+                            <select id="sourceCurrency">
+                                <option value="THB">泰铢 (THB)</option>
+                                <option value="TWD">台币 (TWD)</option>
+                                <option value="SGD">新加坡币 (SGD)</option>
+                                <option value="IDR">印尼盾 (IDR)</option>
+                                <option value="JPY">日圆 (JPY)</option>
+                                <option value="HKD">港币 (HKD)</option>
+                                <option value="MYR">马来西亚令吉 (MYR)</option>
+                                <option value="PHP">菲律宾比索 (PHP)</option>
+                                <option value="VND">越南盾 (VND)</option>
+                                <option value="KRW">韩元 (KRW)</option>
+                            </select>
+                            
+                            <label for="exchangeRate">汇率 (1 源货币 = USD):</label>
+                            <input type="number" id="exchangeRate" min="0" step="0.000001" value="0.027">
+                        </div>
+                        
+                        <div class="button-group">
+                            <button class="btn btn-primary" id="formatBtn">
+                                <i class="fas fa-cogs"></i> 格式化并排序
+                            </button>
+                            
+                            <button class="btn btn-green" id="convertBtn">
+                                <i class="fas fa-dollar-sign"></i> 转换为美元
+                            </button>
+                            
+                            <button class="btn btn-cyan" id="currencyCopyBtn">
+                                <i class="fas fa-copy"></i> 复制结果
+                            </button>
+                            
+                            <button class="btn btn-red" id="currencyResetBtn">
+                                <i class="fas fa-redo"></i> 重置
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="currency-info">
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/th.svg')"></div>
+                            <span>泰铢 (THB) - ฿</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/tw.svg')"></div>
+                            <span>台币 (TWD) - NT$</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/sg.svg')"></div>
+                            <span>新加坡币 (SGD) - S$</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/id.svg')"></div>
+                            <span>印尼盾 (IDR) - Rp</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/jp.svg')"></div>
+                            <span>日圆 (JPY) - ¥</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/hk.svg')"></div>
+                            <span>港币 (HKD) - HK$</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/my.svg')"></div>
+                            <span>马来西亚令吉 (MYR) - RM</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/ph.svg')"></div>
+                            <span>菲律宾比索 (PHP) - ₱</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/vn.svg')"></div>
+                            <span>越南盾 (VND) - ₫</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/kr.svg')"></div>
+                            <span>韩元 (KRW) - ₩</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card results-section">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            <i class="fas fa-list-ol"></i>
+                            格式化结果
+                        </div>
+                        <div class="card-subtitle">已按价格排序的商品列表</div>
+                    </div>
+                </div>
+                <div id="currencyResultsContainer">
+                    <div class="empty-state" id="currencyEmptyState">
+                        <i class="fas fa-coins"></i>
+                        <h3>等待输入数据</h3>
+                        <p>在输入区域粘贴商品数据并点击"格式化并排序"按钮</p>
+                    </div>
+                    
+                    <table class="currency-table" id="currencyTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>商品名称</th>
+                                <th>原始价格</th>
+                                <th>美元价格 (USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="currencyResultsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
         <!-- 成功消息提示 -->
         <div class="success-msg" id="successMsg">
             <i class="fas fa-check-circle"></i>
@@ -1368,7 +1635,13 @@ server id   role id   sdk open id
             },
             
             // 新闻链接工具状态
-            newsLinks: []
+            newsLinks: [],
+            
+            // 货币转换工具状态
+            currencyData: {
+                items: [],
+                exchangeRate: 0.027
+            }
         };
 
         // ================ DOM 元素引用 ================
@@ -1420,14 +1693,31 @@ server id   role id   sdk open id
             newsEmptyState: document.getElementById('newsEmptyState'),
             copyAllLinksBtn: document.getElementById('copyAllLinksBtn'),
             
+            // 货币转换工具
+            currencyInput: document.getElementById('currencyInput'),
+            currencyErrorMsg: document.getElementById('currencyErrorMsg'),
+            currencyErrorText: document.getElementById('currencyErrorText'),
+            sourceCurrency: document.getElementById('sourceCurrency'),
+            exchangeRate: document.getElementById('exchangeRate'),
+            formatBtn: document.getElementById('formatBtn'),
+            convertBtn: document.getElementById('convertBtn'),
+            currencyCopyBtn: document.getElementById('currencyCopyBtn'),
+            currencyResetBtn: document.getElementById('currencyResetBtn'),
+            currencyResultsContainer: document.getElementById('currencyResultsContainer'),
+            currencyResultsBody: document.getElementById('currencyResultsBody'),
+            currencyTable: document.getElementById('currencyTable'),
+            currencyEmptyState: document.getElementById('currencyEmptyState'),
+            
             // 选项卡
             tabs: document.querySelectorAll('.tab'),
             itemConverterTab: document.querySelector('[data-tab="item-converter"]'),
             mailTemplateTab: document.querySelector('[data-tab="mail-template"]'),
             newsGeneratorTab: document.querySelector('[data-tab="news-generator"]'),
+            currencyConverterTab: document.querySelector('[data-tab="currency-converter"]'),
             itemConverterContainer: document.getElementById('item-converter'),
             mailTemplateContainer: document.getElementById('mail-template'),
-            newsGeneratorContainer: document.getElementById('news-generator')
+            newsGeneratorContainer: document.getElementById('news-generator'),
+            currencyConverterContainer: document.getElementById('currency-converter')
         };
 
         // ================ 工具函数 ================
@@ -1449,7 +1739,7 @@ server id   role id   sdk open id
             /**
              * 显示错误消息
              * @param {string} msg - 要显示的错误消息
-             * @param {string} tool - 工具名称 ('item', 'mail' 或 'news')
+             * @param {string} tool - 工具名称 ('item', 'mail', 'news', 'currency')
              */
             showErrorMsg(msg, tool = 'item') {
                 if (tool === 'mail') {
@@ -1457,6 +1747,9 @@ server id   role id   sdk open id
                     DOM.mailErrorMsg.classList.add('show');
                 } else if (tool === 'news') {
                     alert(`错误: ${msg}`);
+                } else if (tool === 'currency') {
+                    DOM.currencyErrorText.textContent = msg;
+                    DOM.currencyErrorMsg.classList.add('show');
                 } else {
                     DOM.errorText.textContent = msg;
                     DOM.errorMsg.classList.add('show');
@@ -1467,6 +1760,8 @@ server id   role id   sdk open id
                         DOM.mailErrorMsg.classList.remove('show');
                     } else if (tool === 'item') {
                         DOM.errorMsg.classList.remove('show');
+                    } else if (tool === 'currency') {
+                        DOM.currencyErrorMsg.classList.remove('show');
                     }
                 }, 4000);
             },
@@ -2597,6 +2892,210 @@ server id   role id   sdk open id
                 Utils.copyToClipboard(textToCopy, DOM.copyAllLinksBtn);
             }
         };
+        
+        // ================ 货币转换工具模块 ================
+        const CurrencyConverterTool = {
+            /**
+             * 初始化货币转换工具
+             */
+            init() {
+                // 设置默认汇率
+                DOM.exchangeRate.value = AppState.currencyData.exchangeRate;
+                
+                // 绑定事件
+                DOM.formatBtn.addEventListener('click', () => this.formatCurrencyData());
+                DOM.convertBtn.addEventListener('click', () => this.convertToUSD());
+                DOM.currencyCopyBtn.addEventListener('click', () => this.copyResults());
+                DOM.currencyResetBtn.addEventListener('click', () => this.resetCurrencyData());
+            },
+            
+            /**
+             * 格式化货币数据
+             */
+            formatCurrencyData() {
+                const input = DOM.currencyInput.value.trim();
+                if (!input) {
+                    Utils.showErrorMsg('请输入数据', 'currency');
+                    return;
+                }
+                
+                try {
+                    const lines = input.split('\n').filter(line => line.trim() !== '');
+                    const items = [];
+                    
+                    // 临时存储名称和价格
+                    let nameBuffer = '';
+                    let priceBuffer = '';
+                    
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        
+                        if (!line) continue;
+                        
+                        // 检测是否是价格行（包含货币符号）
+                        const isPriceLine = /[฿NT\$S\$Rp¥HK\$RM₱₫₩]/.test(line);
+                        
+                        if (isPriceLine) {
+                            // 如果遇到价格行，则将之前存储的名称和当前价格组合
+                            if (nameBuffer) {
+                                items.push({
+                                    name: nameBuffer,
+                                    price: line
+                                });
+                                nameBuffer = '';
+                                priceBuffer = '';
+                            } else {
+                                // 没有名称，只有价格（可能是上一行的商品名称）
+                                if (i > 0) {
+                                    items.push({
+                                        name: lines[i-1].trim(),
+                                        price: line
+                                    });
+                                }
+                            }
+                        } else {
+                            // 如果是名称行
+                            if (priceBuffer) {
+                                // 如果之前有价格，则组合
+                                items.push({
+                                    name: priceBuffer,
+                                    price: line
+                                });
+                                nameBuffer = '';
+                                priceBuffer = '';
+                            } else {
+                                // 存储名称
+                                nameBuffer = line;
+                            }
+                        }
+                    }
+                    
+                    // 处理最后一组数据
+                    if (nameBuffer) {
+                        items.push({
+                            name: nameBuffer,
+                            price: priceBuffer
+                        });
+                    }
+                    
+                    // 保存格式化后的数据
+                    AppState.currencyData.items = items;
+                    
+                    // 渲染结果
+                    this.renderResults(false);
+                    
+                    // 隐藏空状态
+                    DOM.currencyEmptyState.style.display = 'none';
+                    DOM.currencyTable.style.display = 'table';
+                } catch (e) {
+                    Utils.showErrorMsg(`格式化错误: ${e.message}`, 'currency');
+                }
+            },
+            
+            /**
+             * 转换为美元
+             */
+            convertToUSD() {
+                // 更新汇率
+                AppState.currencyData.exchangeRate = parseFloat(DOM.exchangeRate.value) || 0.027;
+                
+                if (!AppState.currencyData.items.length) {
+                    // 如果没有格式化数据，先格式化
+                    this.formatCurrencyData();
+                    return;
+                }
+                
+                // 转换所有商品价格为美元
+                AppState.currencyData.items.forEach(item => {
+                    const priceStr = item.price.replace(/[^\d.,]/g, '');
+                    const price = parseFloat(priceStr.replace(',', ''));
+                    
+                    if (!isNaN(price)) {
+                        item.usdPrice = price * AppState.currencyData.exchangeRate;
+                    } else {
+                        item.usdPrice = 0;
+                    }
+                });
+                
+                // 按美元价格排序
+                AppState.currencyData.items.sort((a, b) => (a.usdPrice || 0) - (b.usdPrice || 0));
+                
+                // 渲染结果
+                this.renderResults(true);
+            },
+            
+            /**
+             * 渲染货币转换结果
+             * @param {boolean} showUSD - 是否显示美元价格
+             */
+            renderResults(showUSD = false) {
+                DOM.currencyResultsBody.innerHTML = '';
+                
+                AppState.currencyData.items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    
+                    // 序号
+                    const indexCell = document.createElement('td');
+                    indexCell.textContent = index + 1;
+                    
+                    // 商品名称
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = item.name;
+                    
+                    // 原始价格
+                    const priceCell = document.createElement('td');
+                    priceCell.className = 'price-original';
+                    priceCell.textContent = item.price;
+                    
+                    // 美元价格
+                    const usdCell = document.createElement('td');
+                    
+                    if (showUSD && item.usdPrice !== undefined) {
+                        usdCell.className = 'price-usd';
+                        usdCell.textContent = `$${item.usdPrice.toFixed(2)}`;
+                    } else {
+                        usdCell.textContent = '-';
+                    }
+                    
+                    row.appendChild(indexCell);
+                    row.appendChild(nameCell);
+                    row.appendChild(priceCell);
+                    row.appendChild(usdCell);
+                    
+                    DOM.currencyResultsBody.appendChild(row);
+                });
+            },
+            
+            /**
+             * 复制结果到剪贴板
+             */
+            copyResults() {
+                if (AppState.currencyData.items.length === 0) {
+                    Utils.showErrorMsg('没有可复制的数据', 'currency');
+                    return;
+                }
+                
+                let textToCopy = "序号\t商品名称\t原始价格\t美元价格(USD)\n";
+                
+                AppState.currencyData.items.forEach((item, index) => {
+                    const usdPrice = item.usdPrice !== undefined ? `$${item.usdPrice.toFixed(2)}` : '-';
+                    textToCopy += `${index + 1}\t${item.name}\t${item.price}\t${usdPrice}\n`;
+                });
+                
+                Utils.copyToClipboard(textToCopy, DOM.currencyCopyBtn);
+            },
+            
+            /**
+             * 重置货币转换数据
+             */
+            resetCurrencyData() {
+                DOM.currencyInput.value = '';
+                DOM.currencyErrorMsg.classList.remove('show');
+                DOM.currencyTable.style.display = 'none';
+                DOM.currencyEmptyState.style.display = 'block';
+                AppState.currencyData.items = [];
+            }
+        };
 
         // ================ 选项卡切换 ================
         const TabManager = {
@@ -2613,18 +3112,19 @@ server id   role id   sdk open id
                 tab.classList.add('active');
                 
                 // 显示对应工具，隐藏其他
+                DOM.itemConverterContainer.style.display = 'none';
+                DOM.mailTemplateContainer.style.display = 'none';
+                DOM.newsGeneratorContainer.style.display = 'none';
+                DOM.currencyConverterContainer.style.display = 'none';
+                
                 if (tabName === 'item-converter') {
                     DOM.itemConverterContainer.style.display = 'block';
-                    DOM.mailTemplateContainer.style.display = 'none';
-                    DOM.newsGeneratorContainer.style.display = 'none';
                 } else if (tabName === 'mail-template') {
-                    DOM.itemConverterContainer.style.display = 'none';
                     DOM.mailTemplateContainer.style.display = 'block';
-                    DOM.newsGeneratorContainer.style.display = 'none';
                 } else if (tabName === 'news-generator') {
-                    DOM.itemConverterContainer.style.display = 'none';
-                    DOM.mailTemplateContainer.style.display = 'none';
                     DOM.newsGeneratorContainer.style.display = 'block';
+                } else if (tabName === 'currency-converter') {
+                    DOM.currencyConverterContainer.style.display = 'block';
                 }
             }
         };
@@ -2688,6 +3188,9 @@ server id   role id   sdk open id
                     NewsLinkGenerator.generateNewsLinks();
                 }
             });
+            
+            // 货币转换工具初始化
+            CurrencyConverterTool.init();
             
             // 选项卡事件
             DOM.tabs.forEach(tab => {
