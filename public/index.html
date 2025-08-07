@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>多功能数据处理工具 - 增强版</title>
+    <title>数据处理工具</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ===== 全局样式 ===== */
@@ -1149,7 +1149,7 @@
                 <div class="logo-icon">
                     <i class="fas fa-exchange-alt"></i>
                 </div>
-                <div class="logo-text">多功能数据处理工具</div>
+                <div class="logo-text">数据处理工具</div>
             </div>
             <div class="controls">
                 <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
@@ -1160,9 +1160,9 @@
 
         <!-- 选项卡导航 -->
         <div class="tabs-container">
-            <div class="tab active" data-tab="item-converter">物品转换</div>
-            <div class="tab" data-tab="mail-template">邮件模板</div>
-            <div class="tab" data-tab="news-generator">新闻链接</div>
+            <div class="tab active" data-tab="item-converter">批量物品转换</div>
+            <div class="tab" data-tab="mail-template">多人邮件数据转换</div>
+            <div class="tab" data-tab="news-generator">生成多语言链接</div>
         </div>
 
         <!-- 物品转换工具 -->
@@ -1405,7 +1405,7 @@ server id   role id   sdk open id
                     <div>
                         <div class="card-title">
                             <i class="fas fa-link"></i>
-                            新闻链接生成工具
+                            官网多语言链接生成工具
                         </div>
                         <div class="card-subtitle">输入新闻ID，生成多文言环境的新闻链接</div>
                     </div>
@@ -1435,7 +1435,7 @@ server id   role id   sdk open id
                     <div>
                         <div class="card-title">
                             <i class="fas fa-globe"></i>
-                            多文言新闻链接
+                            多语言新闻链接
                         </div>
                         <div class="card-subtitle">已生成不同文言环境的新闻链接</div>
                     </div>
@@ -1461,7 +1461,7 @@ server id   role id   sdk open id
         
         <!-- 页脚 -->
         <div class="footer">
-            <p>多功能数据处理工具 &copy; 2023</p>
+            <p>数据处理工具 &copy; 2025</p>
         </div>
     </div>
 
@@ -2710,18 +2710,18 @@ server id   role id   sdk open id
                 
                 // 定义多文言环境的URL模板
                 const urlTemplates = [
-                    { name: "越南", lang: "vi", url: `https://www.coaaction.vn/?news-id=${newsId}` },
-                    { name: "台湾", lang: "zh-TW", url: `https://coatw.com/?news-id=${newsId}` },
-                    { name: "国际(英文)", lang: "en", url: `https://coa.nvsgames.com/?news-id=${newsId}` },
+                    { name: "沙盒环境", lang: "sandbox", url: `https://oasis-act.byteintl.net/?language=en-US&news-id=${newsId}` },
+                    { name: "繁体中文", lang: "zh-TW", url: `https://coatw.com/?news-id=${newsId}` },
+                    { name: "英文", lang: "en", url: `https://coa.nvsgames.com/?news-id=${newsId}` },
+                    { name: "泰文", lang: "th", url: `https://coa.nvsgames.com/th-TH?news-id=${newsId}` },
                     { name: "日文", lang: "ja", url: `https://coa.nvsgames.com/ja-JP?news-id=${newsId}` },
+                    { name: "韩文", lang: "ko", url: `https://coa.nvsgames.com/ko_KR?news-id=${newsId}` },
                     { name: "德文", lang: "de", url: `https://coa.nvsgames.com/de_DE?news-id=${newsId}` },
                     { name: "法文", lang: "fr", url: `https://coa.nvsgames.com/fr-FR?news-id=${newsId}` },
-                    { name: "韩文", lang: "ko", url: `https://coa.nvsgames.com/ko_KR?news-id=${newsId}` },
                     { name: "葡语", lang: "pt-BR", url: `https://coa.nvsgames.com/pt-BR?news-id=${newsId}` },
                     { name: "西语", lang: "es-AR", url: `https://coa.nvsgames.com/es-AR?news-id=${newsId}` },
-                    { name: "泰文", lang: "th", url: `https://coa.nvsgames.com/th-TH?news-id=${newsId}` },
                     { name: "印度尼西亚", lang: "id", url: `https://coa.nvsgames.com/id-ID?news-id=${newsId}` },
-                    { name: "沙盒环境", lang: "sandbox", url: `https://oasis-act.byteintl.net/?language=en-US&news-id=${newsId}` }
+                    { name: "越南", lang: "vi", url: `https://www.coaaction.vn/?news-id=${newsId}` },
                 ];
                 
                 // 保存链接
