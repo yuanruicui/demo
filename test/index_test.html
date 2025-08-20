@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>多功能数据处理工具 - 增强版</title>
+    <title>多工具平台</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ===== 全局样式 ===== */
         :root {
-            --bg-primary: #f5f5f7;
+            --bg-primary: #f5f7fa;
             --bg-secondary: #ffffff;
             --bg-tertiary: #f8f9fa;
             --text-primary: #1d1d1f;
@@ -50,7 +50,7 @@
             background-color: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
-            padding: 20px 20px 100px;
+            padding: 20px;
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
@@ -171,6 +171,15 @@
             background: rgba(0, 113, 227, 0.1);
         }
 
+        /* ===== 工具容器 ===== */
+        .tool-container {
+            display: none;
+        }
+
+        .tool-container.active {
+            display: block;
+        }
+
         /* ===== 卡片样式 ===== */
         .card {
             background: var(--bg-secondary);
@@ -210,7 +219,235 @@
             font-weight: 400;
         }
 
-        /* ===== 输入区域样式 ===== */
+        /* ===== 表单样式 ===== */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--element-radius);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 15px;
+            transition: var(--transition);
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border-radius: var(--element-radius);
+            border: none;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: var(--transition);
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+        }
+
+        .btn-purple {
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        .btn-orange {
+            background: var(--accent-orange);
+            color: white;
+        }
+
+        .btn-cyan {
+            background: var(--accent-cyan);
+            color: white;
+        }
+        
+        .btn-pink {
+            background: var(--accent-pink);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* 优化后的按钮样式 */
+        .btn-sm {
+            padding: 10px 16px;
+            font-size: 14px;
+            min-width: 100px;
+        }
+
+        /* ===== 多语言工具特定样式 ===== */
+        .language-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--element-radius);
+            background: var(--bg-tertiary);
+        }
+
+        .language-btn {
+            padding: 8px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--element-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+
+        .language-btn:hover {
+            background: rgba(0, 113, 227, 0.1);
+            border-color: var(--accent-blue);
+        }
+
+        .language-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .content-display {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--element-radius);
+            min-height: 200px;
+            background: var(--bg-tertiary);
+        }
+
+        .content-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--accent-blue);
+        }
+
+        .content-body {
+            white-space: pre-wrap;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .json-output {
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--element-radius);
+            overflow-x: auto;
+            font-family: 'SF Mono', Menlo, monospace;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        .success-message {
+            margin-top: 15px;
+            padding: 12px 16px;
+            background: var(--accent-green);
+            color: white;
+            border-radius: var(--element-radius);
+            display: none;
+            font-size: 14px;
+        }
+
+        .file-upload {
+            position: relative;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+
+        .file-upload input {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload label {
+            display: block;
+            padding: 14px 16px;
+            border: 2px dashed var(--border-color);
+            border-radius: var(--element-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-upload label:hover {
+            border-color: var(--accent-blue);
+            background: rgba(0, 113, 227, 0.05);
+        }
+
+        .file-upload i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--accent-blue);
+        }
+
+        /* ===== 数据处理工具特定样式 ===== */
         .input-section textarea {
             width: 100%;
             min-height: 180px;
@@ -231,71 +468,25 @@
             box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
         }
 
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 18px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: var(--element-radius);
-            border: none;
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-        }
-
-        .btn-primary {
-            background: var(--accent-blue);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: var(--bg-tertiary);
-            color: var(--text-primary);
-        }
-
-        .btn-warning {
-            background: var(--accent-orange);
-            color: white;
-        }
-
-        .btn-danger {
+        .error-msg {
             background: var(--accent-red);
             color: white;
+            padding: 12px 20px;
+            border-radius: var(--element-radius);
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(10px);
         }
 
-        .btn-purple {
-            background: var(--accent-purple);
-            color: white;
-        }
-        
-        .btn-cyan {
-            background: var(--accent-cyan);
-            color: white;
-        }
-        
-        .btn-pink {
-            background: var(--accent-pink);
-            color: white;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-hover);
-        }
-
-        .btn:active {
+        .error-msg.show {
+            opacity: 1;
             transform: translateY(0);
         }
-        
+
         /* ===== 历史记录和模板区域 ===== */
         .history-templates {
             display: flex;
@@ -630,25 +821,6 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        .error-msg {
-            background: var(--accent-red);
-            color: white;
-            padding: 12px 20px;
-            border-radius: var(--element-radius);
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: var(--transition);
-            opacity: 0;
-            transform: translateY(10px);
-        }
-
-        .error-msg.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
         /* ===== 空状态样式 ===== */
         .empty-state {
             text-align: center;
@@ -907,89 +1079,6 @@
             animation: fadeIn 0.5s ease forwards;
         }
 
-        /* ===== 虚拟滚动样式 ===== */
-        .virtual-scroll-container {
-            height: 500px;
-            overflow-y: auto;
-            position: relative;
-            background: var(--bg-secondary);
-            border-radius: var(--element-radius);
-            border: 1px solid var(--border-color);
-            display: none;
-        }
-
-        .virtual-scroll-content {
-            position: relative;
-        }
-
-        .virtual-row {
-            position: absolute;
-            left: 0;
-            right: 0;
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            height: 80px;
-            box-sizing: border-box;
-        }
-
-        .virtual-row-content {
-            display: flex;
-            width: 100%;
-            align-items: center;
-        }
-
-        .virtual-row-content > div {
-            padding: 0 10px;
-            overflow: hidden;
-        }
-
-        .virtual-row-content .group-cell {
-            width: 5%;
-            min-width: 60px;
-        }
-
-        .virtual-row-content .server-cell {
-            width: 10%;
-            min-width: 100px;
-            font-weight: 500;
-            font-family: 'SF Mono', Menlo, monospace;
-            color: var(--accent-purple);
-        }
-
-        .virtual-row-content .role-cell {
-            width: 10%;
-            min-width: 100px;
-            font-weight: 500;
-            font-family: 'SF Mono', Menlo, monospace;
-            color: var(--accent-cyan);
-        }
-
-        .virtual-row-content .json-cell {
-            width: 30%;
-            max-height: 70px;
-            overflow-y: auto;
-            font-family: 'SF Mono', Menlo, monospace;
-            font-size: 14px;
-            word-break: break-all;
-        }
-
-        .virtual-row-content .item-text-cell {
-            width: 30%;
-            max-height: 70px;
-            overflow-y: auto;
-            white-space: pre-line;
-            font-family: 'SF Mono', Menlo, monospace;
-            font-size: 14px;
-        }
-
-        .virtual-row-content .action-cell {
-            width: 15%;
-            text-align: center;
-        }
-        
         /* ===== 响应式设计 ===== */
         @media (max-width: 1200px) {
             .json-cell, .item-text-cell {
@@ -998,11 +1087,6 @@
             
             .history-templates {
                 flex-direction: column;
-            }
-            
-            .virtual-row-content .json-cell, 
-            .virtual-row-content .item-text-cell {
-                font-size: 12px;
             }
         }
 
@@ -1041,34 +1125,6 @@
                 margin-top: 10px;
                 justify-content: flex-end;
             }
-            
-            .virtual-row-content {
-                flex-wrap: wrap;
-                height: auto;
-            }
-            
-            .virtual-row {
-                height: auto;
-                min-height: 80px;
-            }
-            
-            .virtual-row-content .group-cell,
-            .virtual-row-content .server-cell,
-            .virtual-row-content .role-cell {
-                min-width: 50px;
-                width: 15%;
-            }
-            
-            .virtual-row-content .json-cell,
-            .virtual-row-content .item-text-cell {
-                width: 40%;
-                max-height: 60px;
-            }
-            
-            .virtual-row-content .action-cell {
-                width: 100%;
-                margin-top: 10px;
-            }
         }
 
         @media (max-width: 768px) {
@@ -1076,7 +1132,7 @@
                 padding: 20px;
             }
             
-            .button-group {
+            .btn-group {
                 flex-direction: column;
             }
             
@@ -1111,33 +1167,6 @@
             .tabs-container {
                 flex-direction: column;
             }
-            
-            .virtual-row {
-                flex-wrap: wrap;
-                height: auto;
-                position: relative;
-                padding: 15px;
-            }
-            
-            .virtual-row-content {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .virtual-row-content > div {
-                width: 100% !important;
-                padding: 0;
-            }
-            
-            .action-btn-group {
-                flex-direction: row;
-                margin-top: 10px;
-            }
-            
-            .virtual-row-content .json-cell,
-            .virtual-row-content .item-text-cell {
-                max-height: 100px;
-            }
         }
     </style>
 </head>
@@ -1147,9 +1176,9 @@
         <header>
             <div class="logo">
                 <div class="logo-icon">
-                    <i class="fas fa-exchange-alt"></i>
+                    <i class="fas fa-tools"></i>
                 </div>
-                <div class="logo-text">多功能数据处理工具</div>
+                <div class="logo-text">多工具平台</div>
             </div>
             <div class="controls">
                 <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
@@ -1160,9 +1189,163 @@
 
         <!-- 选项卡导航 -->
         <div class="tabs-container">
-            <div class="tab active" data-tab="item-converter">物品转换</div>
-            <div class="tab" data-tab="mail-template">邮件模板</div>
-            <div class="tab" data-tab="news-generator">新闻链接</div>
+            <div class="tab active" data-tab="multilingual">多语言内容展示</div>
+            <div class="tab" data-tab="item-converter">批量物品转换</div>
+            <div class="tab" data-tab="mail-template">多人邮件数据转换</div>
+            <div class="tab" data-tab="news-generator">生成多语言链接</div>
+        </div>
+
+        <!-- 多语言内容展示工具 -->
+        <div id="multilingual" class="tool-container active">
+            <div class="card fade-in" style="animation-delay: 0.1s;">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            <i class="fas fa-plus-circle"></i>
+                            添加新的语言内容
+                        </div>
+                        <div class="card-subtitle">添加或更新多语言内容</div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="languageCode">语言</label>
+                    <select id="languageCode">
+                        <option value="1">1 - 简体中文</option>
+                        <option value="2">2 - 繁体中文</option>
+                        <option value="3">3 - 英语</option>
+                        <option value="4">4 - 日语</option>
+                        <option value="5">5 - 泰语</option>
+                        <option value="6">6 - 阿拉伯语</option>
+                        <option value="7">7 - 韩语</option>
+                        <option value="8">8 - 印尼语</option>
+                        <option value="9">9 - 西班牙语</option>
+                        <option value="10">10 - 葡萄牙语</option>
+                        <option value="11">11 - 越南语</option>
+                        <option value="12">12 - 俄语</option>
+                        <option value="13">13 - 土耳其语</option>
+                        <option value="14">14 - 德语</option>
+                        <option value="15">15 - 法语</option>
+                        <option value="16">16 - 意大利语</option>
+                        <option value="17">17 - 荷兰语</option>
+                        <option value="18">18 - 波兰语</option>
+                        <option value="19">19 - 印地语</option>
+                        <option value="20">20 - 马来语</option>
+                        <option value="21">21 - 菲律宾语</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="title">标题</label>
+                    <input type="text" id="title" placeholder="输入标题">
+                </div>
+                
+                <div class="form-group">
+                    <label for="content">内容</label>
+                    <textarea id="content" placeholder="输入内容，使用Enter键换行"></textarea>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="addButton">
+                        <i class="fas fa-plus"></i>
+                        添加内容
+                    </button>
+                    <button class="btn btn-secondary" id="clearButton">
+                        <i class="fas fa-eraser"></i>
+                        清空表单
+                    </button>
+                    <button class="btn btn-danger" id="clearAllButton">
+                        <i class="fas fa-trash"></i>
+                        清空所有
+                    </button>
+                    <button class="btn btn-purple" id="copyButton">
+                        <i class="fas fa-copy"></i>
+                        复制JSON
+                    </button>
+                    <button class="btn btn-orange" id="exportButton">
+                        <i class="fas fa-file-export"></i>
+                        导出Excel
+                    </button>
+                </div>
+                
+                <div class="success-message" id="successMessage">
+                    <i class="fas fa-check-circle"></i>
+                    内容添加成功！
+                </div>
+                <div class="success-message" id="copyMessage">
+                    <i class="fas fa-check-circle"></i>
+                    JSON复制成功！
+                </div>
+                <div class="success-message" id="clearAllMessage">
+                    <i class="fas fa-check-circle"></i>
+                    所有内容已清空！
+                </div>
+                <div class="success-message" id="exportMessage">
+                    <i class="fas fa-check-circle"></i>
+                    Excel导出成功！
+                </div>
+            </div>
+
+            <div class="card fade-in" style="animation-delay: 0.2s;">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            <i class="fas fa-file-import"></i>
+                            批量导入多语言内容
+                        </div>
+                        <div class="card-subtitle">上传Excel文件导入多语言内容</div>
+                    </div>
+                </div>
+                
+                <div class="file-upload">
+                    <input type="file" id="fileInput" accept=".xlsx,.xls">
+                    <label for="fileInput">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>点击或拖拽Excel文件到此处上传</p>
+                        <small>支持.xlsx和.xls格式文件</small>
+                    </label>
+                </div>
+                
+                <div class="success-message" id="importMessage">
+                    <i class="fas fa-check-circle"></i>
+                    批量导入成功！
+                </div>
+            </div>
+            
+            <div class="card fade-in" style="animation-delay: 0.3s;">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            <i class="fas fa-globe"></i>
+                            选择语言查看内容
+                        </div>
+                        <div class="card-subtitle">点击语言按钮查看对应内容</div>
+                    </div>
+                </div>
+                
+                <div class="language-selector" id="languageSelector">
+                    <!-- 语言按钮将通过JavaScript动态生成 -->
+                </div>
+                
+                <div class="content-display">
+                    <div class="content-title" id="contentTitle">请选择一种语言</div>
+                    <div class="content-body" id="contentBody"></div>
+                </div>
+            </div>
+            
+            <div class="card fade-in" style="animation-delay: 0.4s;">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            <i class="fas fa-code"></i>
+                            JSON数据
+                        </div>
+                        <div class="card-subtitle">所有语言内容的JSON格式</div>
+                    </div>
+                </div>
+                
+                <div class="json-output" id="jsonOutput"></div>
+            </div>
         </div>
 
         <!-- 物品转换工具 -->
@@ -1192,7 +1375,7 @@
                         <span id="errorText"></span>
                     </div>
                     
-                    <div class="button-group">
+                    <div class="btn-group">
                         <button class="btn btn-primary" id="processBtn" title="快捷键: Ctrl+Enter">
                             <i class="fas fa-sync-alt"></i>
                             处理数据
@@ -1201,7 +1384,7 @@
                             <i class="fas fa-eraser"></i>
                             清空输入
                         </button>
-                        <button class="btn btn-warning" id="exampleBtn">
+                        <button class="btn btn-orange" id="exampleBtn">
                             <i class="fas fa-lightbulb"></i>
                             加载示例
                         </button>
@@ -1284,11 +1467,6 @@
                         </thead>
                         <tbody id="outputTableBody"></tbody>
                     </table>
-                    
-                    <!-- 虚拟滚动容器 -->
-                    <div class="virtual-scroll-container" id="virtualScrollContainer">
-                        <div class="virtual-scroll-content" id="virtualScrollContent"></div>
-                    </div>
                 </div>
             </div>
             
@@ -1310,7 +1488,7 @@
         </div>
 
         <!-- 邮件模板工具 -->
-        <div id="mail-template" class="tool-container" style="display: none;">
+        <div id="mail-template" class="tool-container">
             <!-- 输入区域卡片 -->
             <div class="card fade-in">
                 <div class="card-header">
@@ -1337,7 +1515,7 @@ server id   role id   sdk open id
                         <span id="mailErrorText"></span>
                     </div>
                     
-                    <div class="button-group">
+                    <div class="btn-group">
                         <button class="btn btn-primary" id="mailProcessBtn">
                             <i class="fas fa-sync-alt"></i>
                             处理邮件模板
@@ -1346,7 +1524,7 @@ server id   role id   sdk open id
                             <i class="fas fa-eraser"></i>
                             清空输入
                         </button>
-                        <button class="btn btn-warning" id="mailExampleBtn">
+                        <button class="btn btn-orange" id="mailExampleBtn">
                             <i class="fas fa-lightbulb"></i>
                             加载示例
                         </button>
@@ -1386,7 +1564,7 @@ server id   role id   sdk open id
                             <div class="conflict-list" id="conflictList"></div>
                         </div>
                         
-                        <div class="button-group" style="margin-top: 20px;">
+                        <div class="btn-group" style="margin-top: 20px;">
                             <button class="btn btn-purple" id="copyAllRolesBtn">
                                 <i class="fas fa-copy"></i>
                                 复制所有角色ID
@@ -1398,14 +1576,14 @@ server id   role id   sdk open id
         </div>
         
         <!-- 新闻链接工具 -->
-        <div id="news-generator" class="tool-container" style="display: none;">
+        <div id="news-generator" class="tool-container">
             <!-- 输入区域卡片 -->
             <div class="card fade-in">
                 <div class="card-header">
                     <div>
                         <div class="card-title">
                             <i class="fas fa-link"></i>
-                            新闻链接生成工具
+                            官网多语言链接生成工具
                         </div>
                         <div class="card-subtitle">输入新闻ID，生成多文言环境的新闻链接</div>
                     </div>
@@ -1416,7 +1594,7 @@ server id   role id   sdk open id
                         <input type="text" id="newsIdInput" placeholder="请输入新闻ID">
                     </div>
                     
-                    <div class="button-group">
+                    <div class="btn-group">
                         <button class="btn btn-primary" id="generateNewsBtn">
                             <i class="fas fa-bolt"></i>
                             生成链接
@@ -1435,7 +1613,7 @@ server id   role id   sdk open id
                     <div>
                         <div class="card-title">
                             <i class="fas fa-globe"></i>
-                            多文言新闻链接
+                            多语言新闻链接
                         </div>
                         <div class="card-subtitle">已生成不同文言环境的新闻链接</div>
                     </div>
@@ -1461,1471 +1639,137 @@ server id   role id   sdk open id
         
         <!-- 页脚 -->
         <div class="footer">
-            <p>多功能数据处理工具 &copy; 2023</p>
+            <p>多工具平台 &copy; 2025</p>
         </div>
     </div>
 
     <script>
-        // ================ 应用状态管理 ================
-        const AppState = {
-            allGroupResults: [],
-            allItemTexts: [],
-            originalGroupResults: [],
-            originalItemTexts: [],
-            successTimeout: null,
-            history: [],
-            templates: [],
-            isRestoringHistory: false,
-            virtualScroll: {
-                container: null,
-                content: null,
-                rowHeight: 200,
-                visibleRows: 0,
-                totalRows: 0,
-                startIndex: 0,
-                endIndex: 0
-            },
-            
-            // 邮件模板工具状态
-            mailData: {
-                rawData: null,
-                finalData: null,
-                duplicates: {},
-                conflicts: {}
-            },
-            
-            // 新闻链接工具状态
-            newsLinks: []
-        };
-
-        // ================ DOM 元素引用 ================
-        const DOM = {
-            // 通用元素
-            themeToggle: document.getElementById('themeToggle'),
-            successMsg: document.getElementById('successMsg'),
-            
-            // 物品转换工具
-            inputTextarea: document.getElementById('inputData'),
-            outputTableBody: document.getElementById('outputTableBody'),
-            errorMsg: document.getElementById('errorMsg'),
-            errorText: document.getElementById('errorText'),
-            fixedButtonContainer: document.getElementById('fixedButtonContainer'),
-            copyAllJsonBtn: document.getElementById('copyAllJsonBtn'),
-            copyAllTextBtn: document.getElementById('copyAllTextBtn'),
-            clearBtn: document.getElementById('clearBtn'),
-            exampleBtn: document.getElementById('exampleBtn'),
-            processBtn: document.getElementById('processBtn'),
-            outputTable: document.getElementById('outputTable'),
-            emptyState: document.getElementById('emptyState'),
-            historyList: document.getElementById('historyList'),
-            templatesList: document.getElementById('templatesList'),
-            searchInput: document.getElementById('searchInput'),
-            saveTemplateBtn: document.getElementById('saveTemplateBtn'),
-            virtualScrollContainer: document.getElementById('virtualScrollContainer'),
-            virtualScrollContent: document.getElementById('virtualScrollContent'),
-            clearHistoryBtn: document.getElementById('clearHistoryBtn'),
-            
-            // 邮件模板工具
-            mailInputTextarea: document.getElementById('mailInputData'),
-            mailErrorMsg: document.getElementById('mailErrorMsg'),
-            mailErrorText: document.getElementById('mailErrorText'),
-            mailProcessBtn: document.getElementById('mailProcessBtn'),
-            mailClearBtn: document.getElementById('mailClearBtn'),
-            mailExampleBtn: document.getElementById('mailExampleBtn'),
-            mailResults: document.getElementById('mailResults'),
-            mailEmptyState: document.getElementById('mailEmptyState'),
-            serverCardsContainer: document.getElementById('serverCardsContainer'),
-            statsContainer: document.getElementById('statsContainer'),
-            conflictReport: document.getElementById('conflictReport'),
-            conflictList: document.getElementById('conflictList'),
-            copyAllRolesBtn: document.getElementById('copyAllRolesBtn'),
-            
-            // 新闻链接工具
-            newsIdInput: document.getElementById('newsIdInput'),
-            generateNewsBtn: document.getElementById('generateNewsBtn'),
-            newsLinksContainer: document.getElementById('newsLinksContainer'),
-            newsEmptyState: document.getElementById('newsEmptyState'),
-            copyAllLinksBtn: document.getElementById('copyAllLinksBtn'),
-            
-            // 选项卡
-            tabs: document.querySelectorAll('.tab'),
-            itemConverterTab: document.querySelector('[data-tab="item-converter"]'),
-            mailTemplateTab: document.querySelector('[data-tab="mail-template"]'),
-            newsGeneratorTab: document.querySelector('[data-tab="news-generator"]'),
-            itemConverterContainer: document.getElementById('item-converter'),
-            mailTemplateContainer: document.getElementById('mail-template'),
-            newsGeneratorContainer: document.getElementById('news-generator')
-        };
-
-        // ================ 工具函数 ================
-        const Utils = {
-            /**
-             * 显示成功消息
-             * @param {string} msg - 要显示的消息
-             */
-            showSuccessMsg(msg) {
-                DOM.successMsg.querySelector('span').textContent = msg;
-                DOM.successMsg.classList.add('show');
-                
-                if (AppState.successTimeout) clearTimeout(AppState.successTimeout);
-                AppState.successTimeout = setTimeout(() => {
-                    DOM.successMsg.classList.remove('show');
-                }, 2000);
-            },
-
-            /**
-             * 显示错误消息
-             * @param {string} msg - 要显示的错误消息
-             * @param {string} tool - 工具名称 ('item', 'mail' 或 'news')
-             */
-            showErrorMsg(msg, tool = 'item') {
-                if (tool === 'mail') {
-                    DOM.mailErrorText.textContent = msg;
-                    DOM.mailErrorMsg.classList.add('show');
-                } else if (tool === 'news') {
-                    alert(`错误: ${msg}`);
-                } else {
-                    DOM.errorText.textContent = msg;
-                    DOM.errorMsg.classList.add('show');
-                }
-                
-                setTimeout(() => {
-                    if (tool === 'mail') {
-                        DOM.mailErrorMsg.classList.remove('show');
-                    } else if (tool === 'item') {
-                        DOM.errorMsg.classList.remove('show');
-                    }
-                }, 4000);
-            },
-
-            /**
-             * 复制文本到剪贴板
-             * @param {string} text - 要复制的文本
-             * @param {HTMLElement} [button] - 可选的按钮元素，用于提供视觉反馈
-             */
-            copyToClipboard(text, button = null) {
-                if (button) {
-                    const originalHTML = button.innerHTML;
-                    button.innerHTML = '<i class="fas fa-check"></i> 已复制';
-                    button.style.opacity = '0.8';
-                    
-                    setTimeout(() => {
-                        if (button) {
-                            button.innerHTML = originalHTML;
-                            button.style.opacity = '1';
-                        }
-                    }, 2000);
-                }
-
-                navigator.clipboard.writeText(text)
-                    .then(() => {
-                        Utils.showSuccessMsg('复制成功!');
-                    })
-                    .catch(err => {
-                        console.error('复制失败:', err);
-                        Utils.showErrorMsg('复制失败，请手动复制!');
-                    });
-            },
-            
-            /**
-             * 将JSON数组转换为Excel兼容的文本格式
-             * @param {Array} items - JSON物品数组
-             * @returns {string} - 物品文本（适合粘贴到Excel单元格）
-             */
-            convertJsonToExcelText(items) {
-                return items.map(item => {
-                    // 如果数量大于10000且能被10000整除，则使用w单位
-                    if (item.itemCount >= 10000 && item.itemCount % 10000 === 0) {
-                        return `${item.itemId}*${item.itemCount / 10000}w`;
-                    }
-                    return `${item.itemId}*${item.itemCount}`;
-                }).join('\n');
-            },
-            
-            /**
-             * 格式化时间戳为可读时间
-             * @param {number} timestamp - 时间戳
-             * @returns {string} - 格式化后的时间
-             */
-            formatTime(timestamp) {
-                const date = new Date(timestamp);
-                const now = new Date();
-                const diff = Math.floor((now - date) / 1000); // 秒数差
-                
-                if (diff < 60) {
-                    return `${diff}秒前`;
-                } else if (diff < 3600) {
-                    return `${Math.floor(diff / 60)}分钟前`;
-                } else if (diff < 86400) {
-                    return `${Math.floor(diff / 3600)}小时前`;
-                }
-                
-                return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-            },
-            
-            /**
-             * 从输入数据中提取摘要
-             * @param {string} input - 输入数据
-             * @returns {string} - 摘要文本
-             */
-            getInputSummary(input) {
-                // 提取前5行非空行
-                const lines = input.split('\n').filter(line => line.trim() !== '').slice(0, 5);
-                
-                // 提取每行的物品ID
-                const itemIds = lines.map(line => {
-                    // 跳过服务器ID/角色ID行
-                    if (line.startsWith('[')) return null;
-                    
-                    const parts = line.split('*');
-                    if (parts.length > 0) {
-                        return parts[0].trim();
-                    }
-                    return null;
-                }).filter(id => id !== null);
-                
-                // 生成摘要
-                if (itemIds.length > 0) {
-                    return itemIds.slice(0, 3).join(', ') + (itemIds.length > 3 ? '...' : '');
-                }
-                
-                return '自定义数据';
-            },
-
-            /**
-             * 处理快捷键
-             * @param {KeyboardEvent} e - 键盘事件
-             */
-            handleKeyDown(e) {
-                // Ctrl+Enter: 处理数据
-                if (e.ctrlKey && e.key === 'Enter') {
-                    e.preventDefault();
-                    ItemConverter.processInputData(DOM.inputTextarea.value.trim());
-                }
-                
-                // Ctrl+Shift+C: 复制所有JSON
-                if (e.ctrlKey && e.shiftKey && e.key === 'C') {
-                    e.preventDefault();
-                    ItemConverter.copyAllResults();
-                }
-                
-                // Ctrl+Shift+T: 复制所有物品文本
-                if (e.ctrlKey && e.shiftKey && e.key === 'T') {
-                    e.preventDefault();
-                    ItemConverter.copyAllItemTexts();
-                }
-            }
-        };
-
-        // ================ 物品转换工具模块 ================
-        const ItemConverter = {
-            /**
-             * 处理输入数据并转换为JSON格式
-             * @param {string} input - 用户输入的原始数据
-             */
-            processInputData(input) {
-                if (!input) {
-                    Utils.showErrorMsg('请输入数据');
-                    return;
-                }
-
-                try {
-                    // 支持两种分组方式：空行或引号包裹
-                    let groups = [];
-                    
-                    // 使用正则表达式匹配引号分组
-                    const quoteGroups = input.match(/"([\s\S]*?)"/g);
-                    
-                    if (quoteGroups && quoteGroups.length > 0) {
-                        // 提取引号内的内容作为分组
-                        quoteGroups.forEach(group => {
-                            const content = group.replace(/"/g, '').trim();
-                            if (content) groups.push(content);
-                        });
-                        
-                        // 移除引号分组部分
-                        input = input.replace(/"([\s\S]*?)"/g, '');
-                    }
-                    
-                    // 按空行分组处理剩余部分
-                    const nonQuoteGroups = input.split(/\n\s*\n/).map(group => group.trim()).filter(group => group);
-                    groups = groups.concat(nonQuoteGroups);
-
-                    AppState.allGroupResults = [];
-                    AppState.allItemTexts = [];
-                    DOM.errorMsg.classList.remove('show');
-                    DOM.outputTableBody.innerHTML = '';
-
-                    if (groups.length === 0) {
-                        Utils.showErrorMsg('未检测到有效数据组');
-                        return;
-                    }
-
-                    // 处理每个组
-                    groups.forEach((group, groupIndex) => {
-                        const lines = group.split(/\n|\r/).filter(line => line.trim() !== '');
-                        
-                        // 初始化服务器ID和角色ID
-                        let serverId = '';
-                        let roleId = '';
-                        let itemsStartIndex = 0;
-                        
-                        // 检查第一行是否为服务器ID和角色ID
-                        if (lines.length > 0 && lines[0].startsWith('[')) {
-                            const idLine = lines[0].replace(/[\[\]]/g, '');
-                            const idParts = idLine.split(',');
-                            if (idParts.length >= 2) {
-                                serverId = idParts[0].trim();
-                                roleId = idParts[1].trim();
-                                itemsStartIndex = 1;
-                            }
-                        }
-                        
-                        const groupResult = [];
-                        
-                        // 处理每行物品数据
-                        for (let i = itemsStartIndex; i < lines.length; i++) {
-                            const line = lines[i];
-                            const trimmedLine = line.trim();
-                            if (!trimmedLine) continue;
-
-                            const parts = trimmedLine.split('*');
-                            if (parts.length !== 2) {
-                                Utils.showErrorMsg(`第${groupIndex+1}组第${i+1}行格式错误，正确格式: itemId*count`);
-                                continue;
-                            }
-
-                            // 移除引号
-                            const [itemId, countStr] = parts.map(part => part.replace(/['"]/g, ''));
-                            if (!itemId || !countStr) {
-                                Utils.showErrorMsg(`第${groupIndex+1}组第${i+1}行缺少必要参数`);
-                                continue;
-                            }
-
-                            // 处理数量单位（w = 10000）
-                            let itemCount;
-                            if (countStr.toLowerCase().endsWith('w')) {
-                                const num = parseFloat(countStr.replace(/w/gi, ''));
-                                if (isNaN(num)) {
-                                    Utils.showErrorMsg(`第${groupIndex+1}组第${i+1}行数量格式错误: ${countStr}`);
-                                    continue;
-                                }
-                                itemCount = Math.round(num * 10000);
-                            } else {
-                                itemCount = parseInt(countStr, 10);
-                                if (isNaN(itemCount)) {
-                                    Utils.showErrorMsg(`第${groupIndex+1}组第${i+1}行数量格式错误: ${countStr}`);
-                                    continue;
-                                }
-                            }
-
-                            groupResult.push({
-                                itemId: itemId.trim(),
-                                itemCount: itemCount
-                            });
-                        }
-
-                        if (groupResult.length > 0) {
-                            AppState.allGroupResults.push({
-                                serverId: serverId,
-                                roleId: roleId,
-                                items: groupResult,
-                                originalIndex: groupIndex
-                            });
-                            // 生成Excel兼容的文本
-                            const itemText = Utils.convertJsonToExcelText(groupResult);
-                            AppState.allItemTexts.push(itemText);
-                        }
-                    });
-
-                    // 显示结果
-                    if (AppState.allGroupResults.length > 0) {
-                        // 保存原始数据用于过滤
-                        AppState.originalGroupResults = [...AppState.allGroupResults];
-                        AppState.originalItemTexts = [...AppState.allItemTexts];
-                        
-                        // 如果不是恢复历史记录，则保存到历史记录
-                        if (!AppState.isRestoringHistory) {
-                            this.saveToHistory(input);
-                        }
-                        
-                        // 渲染结果
-                        this.renderResults();
-                        
-                        // 显示固定按钮容器
-                        DOM.fixedButtonContainer.classList.remove('hidden');
-                        
-                        // 隐藏空状态
-                        DOM.emptyState.style.display = 'none';
-                    }
-                } catch (e) {
-                    Utils.showErrorMsg(`处理错误: ${e.message}`);
-                }
-            },
-            
-            /**
-             * 渲染结果到表格或虚拟滚动
-             */
-            renderResults() {
-                // 根据数据量决定使用哪种渲染方式
-                const totalItems = AppState.allGroupResults.length;
-                
-                if (totalItems > 50) {
-                    // 大型数据集 - 使用虚拟滚动
-                    DOM.outputTable.style.display = 'none';
-                    DOM.virtualScrollContainer.style.display = 'block';
-                    
-                    // 初始化虚拟滚动
-                    AppState.virtualScroll.totalRows = totalItems;
-                    this.initVirtualScroll();
-                } else {
-                    // 小型数据集 - 使用表格
-                    DOM.outputTable.style.display = 'table';
-                    DOM.virtualScrollContainer.style.display = 'none';
-                    
-                    DOM.outputTableBody.innerHTML = '';
-                    
-                    AppState.allGroupResults.forEach((groupData, groupIndex) => {
-                        const itemText = Utils.convertJsonToExcelText(groupData.items);
-                        this.addResultToTable(groupData, itemText, groupIndex);
-                    });
-                }
-                
-                // 如果没有结果，显示空状态
-                if (AppState.allGroupResults.length === 0) {
-                    DOM.outputTable.style.display = 'none';
-                    DOM.virtualScrollContainer.style.display = 'none';
-                    DOM.emptyState.style.display = 'block';
-                    DOM.emptyState.innerHTML = `
-                        <i class="fas fa-search"></i>
-                        <h3>未找到匹配结果</h3>
-                        <p>请尝试其他搜索关键词</p>
-                    `;
-                }
-            },
-            
-            /**
-             * 将处理结果添加到结果表格
-             * @param {Object} groupData - 单个组的数据
-             * @param {string} itemText - 物品文本
-             * @param {number} groupIndex - 组索引
-             */
-            addResultToTable(groupData, itemText, groupIndex) {
-                const row = document.createElement('tr');
-                row.classList.add('fade-in');
-                
-                // 组号单元格
-                const groupCell = document.createElement('td');
-                groupCell.className = 'group-cell';
-                groupCell.innerHTML = `<div class="group-badge">${groupData.originalIndex + 1}</div>`;
-                
-                // 服务器ID单元格
-                const serverCell = document.createElement('td');
-                serverCell.className = 'server-cell';
-                serverCell.textContent = groupData.serverId || 'N/A';
-                
-                // 角色ID单元格
-                const roleCell = document.createElement('td');
-                roleCell.className = 'role-cell';
-                roleCell.textContent = groupData.roleId || 'N/A';
-                
-                // JSON结果单元格
-                const jsonCell = document.createElement('td');
-                jsonCell.className = 'json-cell';
-                jsonCell.textContent = JSON.stringify(groupData.items);
-                
-                // 物品文本单元格
-                const itemTextCell = document.createElement('td');
-                itemTextCell.className = 'item-text-cell';
-                itemTextCell.textContent = itemText;
-                
-                // 操作单元格
-                const actionCell = document.createElement('td');
-                actionCell.className = 'action-cell';
-                
-                const actionBtnGroup = document.createElement('div');
-                actionBtnGroup.className = 'action-btn-group';
-                
-                // 复制JSON按钮
-                const copyJsonBtn = document.createElement('button');
-                copyJsonBtn.className = 'copy-btn copy-json-btn';
-                copyJsonBtn.innerHTML = '<i class="fas fa-copy"></i> 复制JSON';
-                copyJsonBtn.addEventListener('click', () => {
-                    Utils.copyToClipboard(JSON.stringify(groupData.items), copyJsonBtn);
-                });
-                
-                // 复制物品文本按钮
-                const copyTextBtn = document.createElement('button');
-                copyTextBtn.className = 'copy-btn copy-text-btn';
-                copyTextBtn.innerHTML = '<i class="fas fa-file-excel"></i> 复制文本';
-                copyTextBtn.addEventListener('click', () => {
-                    Utils.copyToClipboard(itemText, copyTextBtn);
-                });
-                
-                actionBtnGroup.appendChild(copyJsonBtn);
-                actionBtnGroup.appendChild(copyTextBtn);
-                actionCell.appendChild(actionBtnGroup);
-                
-                row.appendChild(groupCell);
-                row.appendChild(serverCell);
-                row.appendChild(roleCell);
-                row.appendChild(jsonCell);
-                row.appendChild(itemTextCell);
-                row.appendChild(actionCell);
-                DOM.outputTableBody.appendChild(row);
-            },
-            
-            /**
-             * 初始化虚拟滚动
-             */
-            initVirtualScroll() {
-                const container = DOM.virtualScrollContainer;
-                const content = DOM.virtualScrollContent;
-                
-                // 计算可见行数
-                AppState.virtualScroll.container = container;
-                AppState.virtualScroll.content = content;
-                AppState.virtualScroll.visibleRows = Math.ceil(container.clientHeight / AppState.virtualScroll.rowHeight);
-                AppState.virtualScroll.startIndex = 0;
-                AppState.virtualScroll.endIndex = Math.min(
-                    AppState.virtualScroll.startIndex + AppState.virtualScroll.visibleRows,
-                    AppState.virtualScroll.totalRows
-                );
-                
-                // 设置内容高度
-                content.style.height = `${AppState.virtualScroll.totalRows * AppState.virtualScroll.rowHeight}px`;
-                
-                // 渲染初始可见行
-                this.renderVirtualRows();
-                
-                // 添加滚动事件监听
-                container.addEventListener('scroll', () => this.handleVirtualScroll());
-            },
-            
-            /**
-             * 处理虚拟滚动
-             */
-            handleVirtualScroll() {
-                const container = AppState.virtualScroll.container;
-                const scrollTop = container.scrollTop;
-                
-                // 计算新的起始索引
-                const newStartIndex = Math.floor(scrollTop / AppState.virtualScroll.rowHeight);
-                const newEndIndex = Math.min(
-                    newStartIndex + AppState.virtualScroll.visibleRows,
-                    AppState.virtualScroll.totalRows
-                );
-                
-                // 如果索引范围没有变化，不需要重新渲染
-                if (
-                    newStartIndex === AppState.virtualScroll.startIndex &&
-                    newEndIndex === AppState.virtualScroll.endIndex
-                ) {
-                    return;
-                }
-                
-                // 更新索引
-                AppState.virtualScroll.startIndex = newStartIndex;
-                AppState.virtualScroll.endIndex = newEndIndex;
-                
-                // 渲染新的可见行
-                this.renderVirtualRows();
-            },
-            
-            /**
-             * 渲染虚拟行 - 修复错行问题
-             */
-            renderVirtualRows() {
-                const content = AppState.virtualScroll.content;
-                const startIndex = AppState.virtualScroll.startIndex;
-                const endIndex = AppState.virtualScroll.endIndex;
-                const rowHeight = AppState.virtualScroll.rowHeight;
-                
-                // 清空内容
-                content.innerHTML = '';
-                
-                // 渲染可见行
-                for (let i = startIndex; i < endIndex; i++) {
-                    const groupData = AppState.allGroupResults[i];
-                    const itemText = Utils.convertJsonToExcelText(groupData.items);
-                    
-                    const row = document.createElement('div');
-                    row.className = 'virtual-row';
-                    row.style.height = `${rowHeight}px`;
-                    row.style.top = `${i * rowHeight}px`;
-                    
-                    // 添加行内容 - 使用固定高度的容器
-                    row.innerHTML = `
-                        <div class="virtual-row-content">
-                            <div class="group-cell">
-                                <div class="group-badge">${i + 1}</div>
-                            </div>
-                            <div class="server-cell">${groupData.serverId || 'N/A'}</div>
-                            <div class="role-cell">${groupData.roleId || 'N/A'}</div>
-                            <div class="json-cell">${JSON.stringify(groupData.items)}</div>
-                            <div class="item-text-cell">${itemText}</div>
-                            <div class="action-cell">
-                                <div class="action-btn-group">
-                                    <button class="copy-btn copy-json-btn">
-                                        <i class="fas fa-copy"></i> 复制JSON
-                                    </button>
-                                    <button class="copy-btn copy-text-btn">
-                                        <i class="fas fa-file-excel"></i> 复制文本
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // 添加事件监听
-                    const copyJsonBtn = row.querySelector('.copy-json-btn');
-                    copyJsonBtn.addEventListener('click', () => {
-                        Utils.copyToClipboard(JSON.stringify(groupData.items), copyJsonBtn);
-                    });
-                    
-                    const copyTextBtn = row.querySelector('.copy-text-btn');
-                    copyTextBtn.addEventListener('click', () => {
-                        Utils.copyToClipboard(itemText, copyTextBtn);
-                    });
-                    
-                    content.appendChild(row);
-                }
-            },
-
-            /**
-             * 清空所有输入和结果
-             */
-            clearAllData() {
-                DOM.inputTextarea.value = '';
-                DOM.outputTableBody.innerHTML = '';
-                DOM.virtualScrollContainer.style.display = 'none';
-                DOM.virtualScrollContent.innerHTML = '';
-                DOM.errorMsg.classList.remove('show');
-                DOM.successMsg.classList.remove('show');
-                AppState.allGroupResults = [];
-                AppState.allItemTexts = [];
-                DOM.outputTable.style.display = 'none';
-                DOM.emptyState.style.display = 'block';
-                DOM.searchInput.value = '';
-                
-                // 隐藏固定按钮容器
-                DOM.fixedButtonContainer.classList.add('hidden');
-            },
-
-            /**
-             * 加载示例数据
-             */
-            loadExampleData() {
-                const exampleData = `341008*1
-360002*50w
-
-"341043 *1
-369012 *1"
-
-[1004,20004]
-360002*100w
-360522*20`;
-                
-                DOM.inputTextarea.value = exampleData;
-                this.processInputData(exampleData.trim());
-            },
-
-            /**
-             * 复制所有JSON结果到剪贴板
-             */
-            copyAllResults() {
-                if (AppState.allGroupResults.length > 0) {
-                    const textToCopy = AppState.allGroupResults
-                        .map(group => JSON.stringify(group.items))
-                        .join('\n');
-                    Utils.copyToClipboard(textToCopy, DOM.copyAllJsonBtn);
-                } else {
-                    Utils.showErrorMsg('没有可复制的JSON结果');
-                }
-            },
-            
-            /**
-             * 复制所有物品文本到剪贴板（Excel兼容格式）
-             */
-            copyAllItemTexts() {
-                if (AppState.allItemTexts.length > 0) {
-                    const textToCopy = AppState.allItemTexts.join('\n\n');
-                    Utils.copyToClipboard(textToCopy, DOM.copyAllTextBtn);
-                } else {
-                    Utils.showErrorMsg('没有可复制的物品文本');
-                }
-            },
-            
-            /**
-             * 保存当前输入到历史记录
-             * @param {string} input - 输入数据
-             */
-            saveToHistory(input) {
-                const timestamp = Date.now();
-                const summary = Utils.getInputSummary(input);
-                
-                const historyItem = {
-                    id: `hist_${timestamp}`,
-                    data: input,
-                    summary: summary,
-                    timestamp: timestamp
-                };
-                
-                // 添加到历史记录数组开头
-                AppState.history.unshift(historyItem);
-                
-                // 只保留最近10条记录
-                if (AppState.history.length > 10) {
-                    AppState.history.pop();
-                }
-                
-                // 保存到localStorage
-                localStorage.setItem('itemConverterHistory', JSON.stringify(AppState.history));
-                
-                // 更新UI
-                this.renderHistory();
-            },
-            
-            /**
-             * 渲染历史记录
-             */
-            renderHistory() {
-                DOM.historyList.innerHTML = '';
-                
-                if (AppState.history.length === 0) {
-                    DOM.historyList.innerHTML = '<div class="empty-history">暂无历史记录</div>';
-                    return;
-                }
-                
-                AppState.history.forEach((item, index) => {
-                    const historyItem = document.createElement('div');
-                    historyItem.className = 'history-item';
-                    historyItem.innerHTML = `
-                        <div>${item.summary}</div>
-                        <div class="time">${Utils.formatTime(item.timestamp)}</div>
-                    `;
-                    
-                    historyItem.addEventListener('click', () => {
-                        // 设置恢复历史记录标志
-                        AppState.isRestoringHistory = true;
-                        
-                        DOM.inputTextarea.value = item.data;
-                        // 处理数据
-                        this.processInputData(item.data);
-                        
-                        // 重置标志
-                        AppState.isRestoringHistory = false;
-                    });
-                    
-                    DOM.historyList.appendChild(historyItem);
-                });
-            },
-            
-            /**
-             * 清除所有历史记录
-             */
-            clearHistory() {
-                if (AppState.history.length === 0) {
-                    Utils.showErrorMsg('没有可清除的历史记录');
-                    return;
-                }
-                
-                // 添加确认提示
-                if (confirm('确定要清除所有历史记录吗？此操作不可撤销。')) {
-                    AppState.history = [];
-                    localStorage.removeItem('itemConverterHistory');
-                    this.renderHistory();
-                    Utils.showSuccessMsg('历史记录已清除');
-                }
-            },
-            
-            /**
-             * 保存当前输入为模板
-             */
-            saveAsTemplate() {
-                const input = DOM.inputTextarea.value.trim();
-                if (!input) {
-                    Utils.showErrorMsg('请输入要保存为模板的数据');
-                    return;
-                }
-                
-                const templateName = prompt('请输入模板名称：', `模板 ${AppState.templates.length + 1}`);
-                
-                // 检查模板名称是否为空
-                if (!templateName) {
-                    return;
-                }
-                
-                if (templateName.trim() === '') {
-                    Utils.showErrorMsg('模板名称不能为空');
-                    return;
-                }
-                
-                const template = {
-                    id: `tpl_${Date.now()}`,
-                    name: templateName,
-                    data: input,
-                    timestamp: Date.now()
-                };
-                
-                // 添加到模板数组开头
-                AppState.templates.unshift(template);
-                
-                // 保存到localStorage
-                localStorage.setItem('itemConverterTemplates', JSON.stringify(AppState.templates));
-                
-                // 更新UI
-                this.renderTemplates();
-                
-                Utils.showSuccessMsg(`模板 "${templateName}" 保存成功!`);
-            },
-            
-            /**
-             * 渲染模板列表
-             */
-            renderTemplates() {
-                DOM.templatesList.innerHTML = '';
-                
-                if (AppState.templates.length === 0) {
-                    DOM.templatesList.innerHTML = '<div class="empty-templates">暂无模板</div>';
-                    return;
-                }
-                
-                AppState.templates.forEach(template => {
-                    const templateItem = document.createElement('div');
-                    templateItem.className = 'template-item';
-                    templateItem.innerHTML = `
-                        <div>${template.name}</div>
-                        <div class="actions">
-                            <i class="fas fa-play" title="应用模板"></i>
-                            <i class="fas fa-trash-alt" title="删除模板"></i>
-                        </div>
-                    `;
-                    
-                    // 应用模板
-                    templateItem.querySelector('.fa-play').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        DOM.inputTextarea.value = template.data;
-                        this.processInputData(template.data);
-                    });
-                    
-                    // 删除模板
-                    templateItem.querySelector('.fa-trash-alt').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        if (confirm(`确定要删除模板 "${template.name}" 吗？`)) {
-                            AppState.templates = AppState.templates.filter(t => t.id !== template.id);
-                            localStorage.setItem('itemConverterTemplates', JSON.stringify(AppState.templates));
-                            this.renderTemplates();
-                            Utils.showSuccessMsg(`模板 "${template.name}" 已删除`);
-                        }
-                    });
-                    
-                    // 点击模板项应用模板
-                    templateItem.addEventListener('click', () => {
-                        DOM.inputTextarea.value = template.data;
-                        this.processInputData(template.data);
-                    });
-                    
-                    DOM.templatesList.appendChild(templateItem);
-                });
-            },
-            
-            /**
-             * 搜索功能实现
-             */
-            handleSearch() {
-                const keyword = DOM.searchInput.value.trim().toLowerCase();
-                
-                if (!keyword) {
-                    // 重置为原始数据
-                    AppState.allGroupResults = [...AppState.originalGroupResults];
-                    AppState.allItemTexts = [...AppState.originalItemTexts];
-                } else {
-                    // 过滤原始数据
-                    AppState.allGroupResults = AppState.originalGroupResults.filter((group) => {
-                        const serverId = group.serverId || '';
-                        const roleId = group.roleId || '';
-                        const jsonStr = JSON.stringify(group.items).toLowerCase();
-                        const itemText = Utils.convertJsonToExcelText(group.items).toLowerCase();
-                        
-                        // 检查这些字符串是否包含关键词
-                        return serverId.toLowerCase().includes(keyword) ||
-                               roleId.toLowerCase().includes(keyword) ||
-                               jsonStr.includes(keyword) ||
-                               itemText.includes(keyword);
-                    });
-                    
-                    // 同时更新对应的物品文本
-                    AppState.allItemTexts = AppState.allGroupResults.map(group => 
-                        Utils.convertJsonToExcelText(group.items)
-                    );
-                }
-                
-                // 重新渲染
-                this.renderResults();
-            }
-        };
-
-        // ================ 邮件模板工具模块 ================
-        const MailTemplateTool = {
-            /**
-             * 处理邮件模板输入数据
-             */
-            processInputData() {
-                const input = DOM.mailInputTextarea.value.trim();
-                if (!input) {
-                    Utils.showErrorMsg('请输入数据', 'mail');
-                    return;
-                }
-
-                try {
-                    // 解析输入数据
-                    const result = this.parseMailInput(input);
-                    if (!result) return;
-                    
-                    // 处理同一服务器内的重复角色ID
-                    const uniqueData = this.handleIntraServerDuplicates(result.rawData);
-                    if (!uniqueData) return;
-                    
-                    // 检查跨服务器角色ID冲突
-                    const finalData = this.checkCrossServerConflicts(uniqueData);
-                    if (!finalData) return;
-                    
-                    // 保存处理结果
-                    AppState.mailData.rawData = result.rawData;
-                    AppState.mailData.finalData = finalData;
-                    
-                    // 渲染结果
-                    this.renderMailResults();
-                    
-                    // 隐藏空状态
-                    DOM.mailEmptyState.style.display = 'none';
-                    DOM.mailResults.style.display = 'block';
-                } catch (e) {
-                    Utils.showErrorMsg(`处理错误: ${e.message}`, 'mail');
-                }
-            },
-            
-            /**
-             * 解析邮件模板输入数据
-             * @param {string} input - 用户输入的原始数据
-             * @returns {Object|null} 解析后的数据对象或null
-             */
-            parseMailInput(input) {
-                const rawData = {};
-                const lines = input.split('\n').filter(line => line.trim() !== '');
-                
-                if (lines.length === 0) {
-                    Utils.showErrorMsg('输入数据为空', 'mail');
-                    return null;
-                }
-                
-                // 检查表头
-                const headerLine = lines[0].toLowerCase();
-                let serverIdIdx = 0;
-                let roleIdIdx = 1;
-                let sdkOpenIdIdx = -1;
-                
-                if (headerLine.includes('server') && headerLine.includes('role')) {
-                    // 检测到表头
-                    if (headerLine.includes('sdk')) {
-                        sdkOpenIdIdx = 2;
-                    }
-                    
-                    // 移除表头行
-                    lines.shift();
-                }
-                
-                // 处理数据行
-                for (const line of lines) {
-                    const parts = line.trim().split(/\s+/).filter(part => part !== '');
-                    
-                    if (parts.length < 2) {
-                        Utils.showErrorMsg(`格式错误行: ${line}`, 'mail');
-                        continue;
-                    }
-                    
-                    try {
-                        const serverId = parseInt(parts[serverIdIdx].replace(/,/g, ''));
-                        const roleId = parts[roleIdIdx].replace(/,/g, '');
-                        const sdkOpenId = sdkOpenIdIdx !== -1 && parts.length > sdkOpenIdIdx ? parts[sdkOpenIdIdx] : '';
-                        
-                        if (!rawData[serverId]) {
-                            rawData[serverId] = [];
-                        }
-                        
-                        rawData[serverId].push({ roleId, sdkOpenId });
-                    } catch (e) {
-                        Utils.showErrorMsg(`解析错误行: ${line}`, 'mail');
-                        console.error(e);
-                    }
-                }
-                
-                if (Object.keys(rawData).length === 0) {
-                    Utils.showErrorMsg('未找到有效数据', 'mail');
-                    return null;
-                }
-                
-                return { rawData };
-            },
-            
-            /**
-             * 处理同一服务器内的重复角色ID
-             * @param {Object} rawData - 原始数据
-             * @returns {Object|null} 去重后的数据或null
-             */
-            handleIntraServerDuplicates(rawData) {
-                const uniqueData = {};
-                const duplicates = {};
-                let hasDuplicates = false;
-                
-                for (const [serverId, roles] of Object.entries(rawData)) {
-                    const uniqueRoles = new Set();
-                    const serverDuplicates = [];
-                    
-                    for (const role of roles) {
-                        if (uniqueRoles.has(role.roleId)) {
-                            serverDuplicates.push(role.roleId);
-                            hasDuplicates = true;
-                        } else {
-                            uniqueRoles.add(role.roleId);
-                            if (!uniqueData[serverId]) {
-                                uniqueData[serverId] = [];
-                            }
-                            uniqueData[serverId].push(role);
-                        }
-                    }
-                    
-                    if (serverDuplicates.length > 0) {
-                        duplicates[serverId] = [...new Set(serverDuplicates)];
-                    }
-                }
-                
-                // 保存重复信息
-                AppState.mailData.duplicates = duplicates;
-                
-                if (hasDuplicates) {
-                    console.log('检测到服务器内重复角色ID:', duplicates);
-                    
-                    // 构建重复信息提示
-                    let msg = '在以下服务器中检测到重复角色ID:\n';
-                    for (const [serverId, roles] of Object.entries(duplicates)) {
-                        msg += `服务器 ${serverId}: ${roles.join(', ')}\n`;
-                    }
-                    
-                    if (!confirm(`${msg}\n是否继续处理并自动去重?`)) {
-                        return null;
-                    }
-                }
-                
-                return uniqueData;
-            },
-            
-            /**
-             * 检查跨服务器角色ID冲突
-             * @param {Object} data - 去重后的数据
-             * @returns {Object|null} 无冲突的数据或null
-             */
-            checkCrossServerConflicts(data) {
-                const roleToServers = {};
-                const conflicts = {};
-                
-                // 构建角色ID到服务器的映射
-                for (const [serverId, roles] of Object.entries(data)) {
-                    for (const role of roles) {
-                        if (!roleToServers[role.roleId]) {
-                            roleToServers[role.roleId] = [];
-                        }
-                        roleToServers[role.roleId].push(serverId);
-                    }
-                }
-                
-                // 检查冲突
-                for (const [roleId, servers] of Object.entries(roleToServers)) {
-                    if (servers.length > 1) {
-                        conflicts[roleId] = servers;
-                    }
-                }
-                
-                // 保存冲突信息
-                AppState.mailData.conflicts = conflicts;
-                
-                if (Object.keys(conflicts).length > 0) {
-                    // 构建冲突信息提示
-                    let msg = '检测到跨服务器角色ID冲突:\n';
-                    for (const [roleId, servers] of Object.entries(conflicts)) {
-                        msg += `角色ID ${roleId} 出现在服务器: ${servers.join(', ')}\n`;
-                    }
-                    
-                    Utils.showErrorMsg(msg, 'mail');
-                    return null;
-                }
-                
-                return data;
-            },
-            
-            /**
-             * 渲染邮件模板处理结果
-             */
-            renderMailResults() {
-                // 清空之前的结果
-                DOM.serverCardsContainer.innerHTML = '';
-                DOM.statsContainer.innerHTML = '';
-                DOM.conflictList.innerHTML = '';
-                
-                const { finalData, duplicates, conflicts } = AppState.mailData;
-                
-                // 统计信息
-                const serverCount = Object.keys(finalData).length;
-                let roleCount = 0;
-                
-                // 渲染服务器卡片
-                for (const [serverId, roles] of Object.entries(finalData)) {
-                    roleCount += roles.length;
-                    
-                    const serverCard = document.createElement('div');
-                    serverCard.className = 'server-card fade-in';
-                    
-                    serverCard.innerHTML = `
-                        <div class="server-card-header">
-                            <div class="server-id">服务器: ${serverId}</div>
-                            <button class="copy-server-btn btn btn-sm btn-secondary">
-                                <i class="fas fa-copy"></i> 复制
-                            </button>
-                        </div>
-                        <div class="server-card-body">
-                            ${roles.map(role => `
-                                <div class="role-item">
-                                    <div class="role-id">${role.roleId}</div>
-                                    <div class="role-count">${role.sdkOpenId || '无'}</div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="server-card-footer">
-                            <small>角色数量: ${roles.length}</small>
-                        </div>
-                    `;
-                    
-                    // 添加复制功能
-                    const copyBtn = serverCard.querySelector('.copy-server-btn');
-                    copyBtn.addEventListener('click', () => {
-                        const roleIds = roles.map(r => r.roleId).join(',');
-                        Utils.copyToClipboard(roleIds, copyBtn);
-                    });
-                    
-                    DOM.serverCardsContainer.appendChild(serverCard);
-                }
-                
-                // 渲染统计信息
-                DOM.statsContainer.innerHTML = `
-                    <div class="stat-card">
-                        <div class="stat-label">服务器总数</div>
-                        <div class="stat-value">${serverCount}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">角色总数</div>
-                        <div class="stat-value">${roleCount}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">冲突数量</div>
-                        <div class="stat-value">${Object.keys(conflicts).length}</div>
-                    </div>
-                `;
-                
-                // 渲染冲突信息
-                if (Object.keys(conflicts).length > 0) {
-                    DOM.conflictReport.style.display = 'block';
-                    
-                    for (const [roleId, servers] of Object.entries(conflicts)) {
-                        const conflictItem = document.createElement('div');
-                        conflictItem.className = 'conflict-item';
-                        conflictItem.innerHTML = `
-                            <strong>角色ID: ${roleId}</strong> 出现在多个服务器: ${servers.join(', ')}
-                        `;
-                        DOM.conflictList.appendChild(conflictItem);
-                    }
-                } else {
-                    DOM.conflictReport.style.display = 'none';
-                }
-            },
-            
-            /**
-             * 清空邮件模板输入和结果
-             */
-            clearMailData() {
-                DOM.mailInputTextarea.value = '';
-                DOM.mailResults.style.display = 'none';
-                DOM.mailErrorMsg.classList.remove('show');
-                DOM.mailEmptyState.style.display = 'block';
-                DOM.conflictReport.style.display = 'none';
-                AppState.mailData = {
-                    rawData: null,
-                    finalData: null,
-                    duplicates: {},
-                    conflicts: {}
-                };
-            },
-            
-            /**
-             * 加载邮件模板示例数据
-             */
-            loadMailExample() {
-                const exampleData = `server id   role id   sdk open id
-1001        20001     8881001
-1004        50002     `;
-                
-                DOM.mailInputTextarea.value = exampleData;
-            },
-            
-            /**
-             * 复制所有角色ID
-             */
-            copyAllRoleIds() {
-                if (!AppState.mailData.finalData) {
-                    Utils.showErrorMsg('没有可复制的角色ID', 'mail');
-                    return;
-                }
-                
-                let allRoleIds = [];
-                for (const roles of Object.values(AppState.mailData.finalData)) {
-                    allRoleIds = allRoleIds.concat(roles.map(r => r.roleId));
-                }
-                
-                Utils.copyToClipboard(allRoleIds.join(','), DOM.copyAllRolesBtn);
-            }
-        };
-
-        // ================ 新闻链接工具模块 ================
-        const NewsLinkGenerator = {
-            /**
-             * 生成新闻链接
-             */
-            generateNewsLinks() {
-                const newsId = DOM.newsIdInput.value.trim();
-                
-                if (!newsId) {
-                    Utils.showErrorMsg('请输入新闻ID', 'news');
-                    return;
-                }
-                
-                // 定义多文言环境的URL模板
-                const urlTemplates = [
-                    { name: "越南", lang: "vi", url: `https://www.coaaction.vn/?news-id=${newsId}` },
-                    { name: "台湾", lang: "zh-TW", url: `https://coatw.com/?news-id=${newsId}` },
-                    { name: "国际(英文)", lang: "en", url: `https://coa.nvsgames.com/?news-id=${newsId}` },
-                    { name: "日文", lang: "ja", url: `https://coa.nvsgames.com/ja-JP?news-id=${newsId}` },
-                    { name: "德文", lang: "de", url: `https://coa.nvsgames.com/de_DE?news-id=${newsId}` },
-                    { name: "法文", lang: "fr", url: `https://coa.nvsgames.com/fr-FR?news-id=${newsId}` },
-                    { name: "韩文", lang: "ko", url: `https://coa.nvsgames.com/ko_KR?news-id=${newsId}` },
-                    { name: "葡语", lang: "pt-BR", url: `https://coa.nvsgames.com/pt-BR?news-id=${newsId}` },
-                    { name: "西语", lang: "es-AR", url: `https://coa.nvsgames.com/es-AR?news-id=${newsId}` },
-                    { name: "泰文", lang: "th", url: `https://coa.nvsgames.com/th-TH?news-id=${newsId}` },
-                    { name: "印度尼西亚", lang: "id", url: `https://coa.nvsgames.com/id-ID?news-id=${newsId}` },
-                    { name: "沙盒环境", lang: "sandbox", url: `https://oasis-act.byteintl.net/?language=en-US&news-id=${newsId}` }
-                ];
-                
-                // 保存链接
-                AppState.newsLinks = urlTemplates;
-                
-                // 渲染链接
-                this.renderNewsLinks();
-                
-                // 隐藏空状态
-                DOM.newsEmptyState.style.display = 'none';
-                DOM.newsLinksContainer.style.display = 'flex';
-            },
-            
-            /**
-             * 渲染新闻链接
-             */
-            renderNewsLinks() {
-                DOM.newsLinksContainer.innerHTML = '';
-                
-                AppState.newsLinks.forEach(link => {
-                    const linkItem = document.createElement('div');
-                    linkItem.className = 'link-item fade-in';
-                    
-                    // 根据文言设置图标颜色
-                    let iconColor = '';
-                    let iconClass = 'fas fa-globe';
-                    
-                    if (link.lang === 'sandbox') {
-                        iconColor = 'var(--accent-orange)';
-                        iconClass = 'fas fa-flask';
-                    } else if (link.lang === 'vi') {
-                        iconColor = '#da251d';
-                    } else if (link.lang === 'zh-TW') {
-                        iconColor = '#fe0000';
-                    } else if (link.lang === 'en') {
-                        iconColor = '#0038b8';
-                    } else if (link.lang === 'ja') {
-                        iconColor = '#bc002d';
-                    } else if (link.lang === 'de') {
-                        iconColor = '#000000';
-                    } else if (link.lang === 'fr') {
-                        iconColor = '#0055a4';
-                    } else if (link.lang === 'ko') {
-                        iconColor = '#c60c30';
-                    } else if (link.lang === 'pt-BR') {
-                        iconColor = '#009c3b';
-                    } else if (link.lang === 'es-AR') {
-                        iconColor = '#75aadb';
-                    } else if (link.lang === 'th') {
-                        iconColor = '#a51931';
-                    } else if (link.lang === 'id') {
-                        iconColor = '#ce1126';
-                    }
-                    
-                    linkItem.innerHTML = `
-                        <div class="link-icon" style="background: ${iconColor}">
-                            <i class="${iconClass}"></i>
-                        </div>
-                        <div class="link-content">
-                            <div class="link-title">${link.name}</div>
-                            <div class="link-url">${link.url}</div>
-                        </div>
-                        <div class="link-actions">
-                            <button class="link-btn copy">
-                                <i class="fas fa-copy"></i> 复制
-                            </button>
-                            <button class="link-btn open">
-                                <i class="fas fa-external-link-alt"></i> 打开
-                            </button>
-                        </div>
-                    `;
-                    
-                    // 添加复制功能
-                    const copyBtn = linkItem.querySelector('.copy');
-                    copyBtn.addEventListener('click', () => {
-                        Utils.copyToClipboard(link.url, copyBtn);
-                    });
-                    
-                    // 添加打开链接功能
-                    const openBtn = linkItem.querySelector('.open');
-                    openBtn.addEventListener('click', () => {
-                        window.open(link.url, '_blank');
-                    });
-                    
-                    DOM.newsLinksContainer.appendChild(linkItem);
-                });
-            },
-            
-            /**
-             * 复制所有新闻链接
-             */
-            copyAllNewsLinks() {
-                if (AppState.newsLinks.length === 0) {
-                    Utils.showErrorMsg('没有可复制的链接', 'news');
-                    return;
-                }
-                
-                const textToCopy = AppState.newsLinks.map(link => `${link.name}: ${link.url}`).join('\n');
-                Utils.copyToClipboard(textToCopy, DOM.copyAllLinksBtn);
-            }
-        };
-
-        // ================ 选项卡切换 ================
-        const TabManager = {
-            /**
-             * 切换工具选项卡
-             * @param {Event} e - 事件对象
-             */
-            switchTab(e) {
-                const tab = e.currentTarget;
-                const tabName = tab.dataset.tab;
-                
-                // 更新选项卡状态
-                DOM.tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                
-                // 显示对应工具，隐藏其他
-                if (tabName === 'item-converter') {
-                    DOM.itemConverterContainer.style.display = 'block';
-                    DOM.mailTemplateContainer.style.display = 'none';
-                    DOM.newsGeneratorContainer.style.display = 'none';
-                } else if (tabName === 'mail-template') {
-                    DOM.itemConverterContainer.style.display = 'none';
-                    DOM.mailTemplateContainer.style.display = 'block';
-                    DOM.newsGeneratorContainer.style.display = 'none';
-                } else if (tabName === 'news-generator') {
-                    DOM.itemConverterContainer.style.display = 'none';
-                    DOM.mailTemplateContainer.style.display = 'none';
-                    DOM.newsGeneratorContainer.style.display = 'block';
-                }
-            }
-        };
-
-        // ================ 主题管理 ================
-        const ThemeManager = {
-            /**
-             * 处理主题切换
-             */
-            handleThemeToggle() {
+        // 简化版的初始化代码
+        document.addEventListener('DOMContentLoaded', function() {
+            // 主题切换功能
+            const themeToggle = document.getElementById('themeToggle');
+            themeToggle.addEventListener('click', () => {
                 document.body.classList.toggle('dark-mode');
                 localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-            }
-        };
-
-        // ================ 初始化应用 ================
-        function initApp() {
-            // 设置主题
+            });
+            
+            // 设置初始主题
             if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.add('dark-mode');
             }
             
-            // 加载历史记录
-            const savedHistory = localStorage.getItem('itemConverterHistory');
-            if (savedHistory) {
-                AppState.history = JSON.parse(savedHistory);
-                ItemConverter.renderHistory();
-            }
+            // 选项卡切换功能
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.dataset.tab;
+                    
+                    // 更新选项卡状态
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // 显示对应工具，隐藏其他
+                    document.querySelectorAll('.tool-container').forEach(container => {
+                        container.classList.remove('active');
+                    });
+                    
+                    document.getElementById(tabName).classList.add('active');
+                });
+            });
             
-            // 加载模板
-            const savedTemplates = localStorage.getItem('itemConverterTemplates');
-            if (savedTemplates) {
-                AppState.templates = JSON.parse(savedTemplates);
-                ItemConverter.renderTemplates();
-            }
+            // 初始化多语言工具
+            let multilingualData = [];
+            const languageCodeToName = {
+                1: "简体中文", 2: "繁体中文", 3: "英语", 4: "日语", 5: "泰语",
+                6: "阿拉伯语", 7: "韩语", 8: "印尼语", 9: "西班牙语", 10: "葡萄牙语",
+                11: "越南语", 12: "俄语", 13: "土耳其语", 14: "德语", 15: "法语",
+                16: "意大利语", 17: "荷兰语", 18: "波兰语", 19: "印地语", 20: "马来语",
+                21: "菲律宾语"
+            };
             
-            // 绑定事件监听器
-            DOM.themeToggle.addEventListener('click', ThemeManager.handleThemeToggle);
-            DOM.processBtn.addEventListener('click', () => ItemConverter.processInputData(DOM.inputTextarea.value.trim()));
-            DOM.clearBtn.addEventListener('click', () => ItemConverter.clearAllData());
-            DOM.exampleBtn.addEventListener('click', () => ItemConverter.loadExampleData());
-            DOM.copyAllJsonBtn.addEventListener('click', () => ItemConverter.copyAllResults());
-            DOM.copyAllTextBtn.addEventListener('click', () => ItemConverter.copyAllItemTexts());
-            DOM.saveTemplateBtn.addEventListener('click', () => ItemConverter.saveAsTemplate());
-            DOM.clearHistoryBtn.addEventListener('click', () => ItemConverter.clearHistory());
-            DOM.searchInput.addEventListener('input', () => ItemConverter.handleSearch());
-            
-            // 邮件模板工具事件
-            DOM.mailProcessBtn.addEventListener('click', () => MailTemplateTool.processInputData());
-            DOM.mailClearBtn.addEventListener('click', () => MailTemplateTool.clearMailData());
-            DOM.mailExampleBtn.addEventListener('click', () => MailTemplateTool.loadMailExample());
-            DOM.copyAllRolesBtn.addEventListener('click', () => MailTemplateTool.copyAllRoleIds());
-            
-            // 新闻链接工具事件
-            DOM.generateNewsBtn.addEventListener('click', () => NewsLinkGenerator.generateNewsLinks());
-            DOM.copyAllLinksBtn.addEventListener('click', () => NewsLinkGenerator.copyAllNewsLinks());
-            
-            // 新闻ID输入框回车键支持
-            DOM.newsIdInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    NewsLinkGenerator.generateNewsLinks();
+            // 初始化语言选择器
+            function initLanguageSelector() {
+                const selector = document.getElementById('languageSelector');
+                selector.innerHTML = '';
+                
+                if (multilingualData.length === 0) {
+                    selector.innerHTML = '<div style="padding: 10px; color: var(--text-secondary); text-align: center;">暂无语言内容，请先添加内容</div>';
+                    return;
                 }
-            });
+                
+                multilingualData.forEach(item => {
+                    const button = document.createElement('button');
+                    button.className = 'language-btn';
+                    button.textContent = languageCodeToName[item.language] || `语言 ${item.language}`;
+                    button.setAttribute('data-language', item.language);
+                    button.addEventListener('click', () => {
+                        document.querySelectorAll('.language-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                        });
+                        button.classList.add('active');
+                        displayContent(item);
+                    });
+                    selector.appendChild(button);
+                });
+            }
             
-            // 选项卡事件
-            DOM.tabs.forEach(tab => {
-                tab.addEventListener('click', TabManager.switchTab);
-            });
+            function displayContent(item) {
+                document.getElementById('contentTitle').textContent = item.title;
+                document.getElementById('contentBody').textContent = item.content;
+            }
             
-            // 添加快捷键支持
-            document.addEventListener('keydown', Utils.handleKeyDown);
-        }
+            function updateJsonOutput() {
+                const jsonOutput = document.getElementById('jsonOutput');
+                const filteredData = multilingualData.filter(item => {
+                    return item.title && item.title.trim() !== '' && item.content && item.content.trim() !== '';
+                });
+                
+                if (filteredData.length === 0) {
+                    jsonOutput.textContent = '没有可用的语言数据，请添加内容后再试。';
+                } else {
+                    jsonOutput.textContent = JSON.stringify(filteredData, null, 2);
+                }
+            }
+            
+            // 添加新内容功能
+            document.getElementById('addButton').addEventListener('click', () => {
+                const languageCode = parseInt(document.getElementById('languageCode').value);
+                const title = document.getElementById('title').value.trim();
+                const content = document.getElementById('content').value.trim();
 
-        // 启动应用
-        document.addEventListener('DOMContentLoaded', initApp);
+                if (!title || !content) {
+                    alert('请输入标题和内容');
+                    return;
+                }
+
+                const existingIndex = multilingualData.findIndex(item => item.language === languageCode);
+                if (existingIndex !== -1) {
+                    multilingualData[existingIndex] = { language: languageCode, title, content };
+                } else {
+                    multilingualData.push({ language: languageCode, title, content });
+                    multilingualData.sort((a, b) => a.language - b.language);
+                }
+
+                initLanguageSelector();
+                updateJsonOutput();
+
+                const successMessage = document.getElementById('successMessage');
+                successMessage.style.display = 'block';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 2000);
+            });
+            
+            // 清空表单
+            document.getElementById('clearButton').addEventListener('click', () => {
+                document.getElementById('title').value = '';
+                document.getElementById('content').value = '';
+            });
+            
+            // 初始化多语言工具
+            initLanguageSelector();
+            updateJsonOutput();
+        });
     </script>
 </body>
 </html>
