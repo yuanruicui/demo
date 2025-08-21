@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>多功能数据处理工具 - 增强版</title>
+    <title>数据处理工具</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         /* ===== 全局样式 ===== */
@@ -907,6 +907,89 @@
             animation: fadeIn 0.5s ease forwards;
         }
 
+        /* ===== 虚拟滚动样式 ===== */
+        .virtual-scroll-container {
+            height: 500px;
+            overflow-y: auto;
+            position: relative;
+            background: var(--bg-secondary);
+            border-radius: var(--element-radius);
+            border: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .virtual-scroll-content {
+            position: relative;
+        }
+
+        .virtual-row {
+            position: absolute;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            height: 80px;
+            box-sizing: border-box;
+        }
+
+        .virtual-row-content {
+            display: flex;
+            width: 100%;
+            align-items: center;
+        }
+
+        .virtual-row-content > div {
+            padding: 0 10px;
+            overflow: hidden;
+        }
+
+        .virtual-row-content .group-cell {
+            width: 5%;
+            min-width: 60px;
+        }
+
+        .virtual-row-content .server-cell {
+            width: 10%;
+            min-width: 100px;
+            font-weight: 500;
+            font-family: 'SF Mono', Menlo, monospace;
+            color: var(--accent-purple);
+        }
+
+        .virtual-row-content .role-cell {
+            width: 10%;
+            min-width: 100px;
+            font-weight: 500;
+            font-family: 'SF Mono', Menlo, monospace;
+            color: var(--accent-cyan);
+        }
+
+        .virtual-row-content .json-cell {
+            width: 30%;
+            max-height: 70px;
+            overflow-y: auto;
+            font-family: 'SF Mono', Menlo, monospace;
+            font-size: 14px;
+            word-break: break-all;
+        }
+
+        .virtual-row-content .item-text-cell {
+            width: 30%;
+            max-height: 70px;
+            overflow-y: auto;
+            white-space: pre-line;
+            font-family: 'SF Mono', Menlo, monospace;
+            font-size: 14px;
+        }
+
+        .virtual-row-content .action-cell {
+            width: 15%;
+            text-align: center;
+        }
+        
         /* ===== 响应式设计 ===== */
         @media (max-width: 1200px) {
             .json-cell, .item-text-cell {
@@ -915,6 +998,11 @@
             
             .history-templates {
                 flex-direction: column;
+            }
+            
+            .virtual-row-content .json-cell, 
+            .virtual-row-content .item-text-cell {
+                font-size: 12px;
             }
         }
 
@@ -952,6 +1040,34 @@
                 width: 100%;
                 margin-top: 10px;
                 justify-content: flex-end;
+            }
+            
+            .virtual-row-content {
+                flex-wrap: wrap;
+                height: auto;
+            }
+            
+            .virtual-row {
+                height: auto;
+                min-height: 80px;
+            }
+            
+            .virtual-row-content .group-cell,
+            .virtual-row-content .server-cell,
+            .virtual-row-content .role-cell {
+                min-width: 50px;
+                width: 15%;
+            }
+            
+            .virtual-row-content .json-cell,
+            .virtual-row-content .item-text-cell {
+                width: 40%;
+                max-height: 60px;
+            }
+            
+            .virtual-row-content .action-cell {
+                width: 100%;
+                margin-top: 10px;
             }
         }
 
@@ -995,6 +1111,33 @@
             .tabs-container {
                 flex-direction: column;
             }
+            
+            .virtual-row {
+                flex-wrap: wrap;
+                height: auto;
+                position: relative;
+                padding: 15px;
+            }
+            
+            .virtual-row-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .virtual-row-content > div {
+                width: 100% !important;
+                padding: 0;
+            }
+            
+            .action-btn-group {
+                flex-direction: row;
+                margin-top: 10px;
+            }
+            
+            .virtual-row-content .json-cell,
+            .virtual-row-content .item-text-cell {
+                max-height: 100px;
+            }
         }
     </style>
 </head>
@@ -1006,7 +1149,7 @@
                 <div class="logo-icon">
                     <i class="fas fa-exchange-alt"></i>
                 </div>
-                <div class="logo-text">多功能数据处理工具</div>
+                <div class="logo-text">数据处理工具</div>
             </div>
             <div class="controls">
                 <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
@@ -1017,9 +1160,9 @@
 
         <!-- 选项卡导航 -->
         <div class="tabs-container">
-            <div class="tab active" data-tab="item-converter">物品转换</div>
-            <div class="tab" data-tab="mail-template">邮件模板</div>
-            <div class="tab" data-tab="news-generator">新闻链接</div>
+            <div class="tab active" data-tab="item-converter">批量物品转换</div>
+            <div class="tab" data-tab="mail-template">多人邮件数据转换</div>
+            <div class="tab" data-tab="news-generator">生成多语言链接</div>
         </div>
 
         <!-- 物品转换工具 -->
@@ -1037,17 +1180,8 @@
                 </div>
                 <div class="input-section">
                     <textarea id="inputData" placeholder="例如:
-[1001,20001]
 341008*1
-360260*1
-360145*1
 360002*50w
-360522*10
-
-[1002,20002]
-341008*1
-360260*1
-360145*1
 
 [1003,20003]
 360002*100w
@@ -1152,7 +1286,7 @@
                     </table>
                     
                     <!-- 虚拟滚动容器 -->
-                    <div class="virtual-scroll-container" id="virtualScrollContainer" style="display: none;">
+                    <div class="virtual-scroll-container" id="virtualScrollContainer">
                         <div class="virtual-scroll-content" id="virtualScrollContent"></div>
                     </div>
                 </div>
@@ -1191,17 +1325,11 @@
                 <div class="input-section">
                     <textarea id="mailInputData" placeholder="例如:
 1001 20001
-1001 20002
-1002 30001
-1003 40001 8880001
-1003 40002 8880002
+1003 40002
 
 或者带表头:
 server id   role id   sdk open id
 1001        20001
-1001        20002
-1002        30001
-1003        40001     8880001
 1003        40002     8880002"></textarea>
                     
                     <div class="error-msg" id="mailErrorMsg">
@@ -1277,7 +1405,7 @@ server id   role id   sdk open id
                     <div>
                         <div class="card-title">
                             <i class="fas fa-link"></i>
-                            新闻链接生成工具
+                            官网多语言链接生成工具
                         </div>
                         <div class="card-subtitle">输入新闻ID，生成多文言环境的新闻链接</div>
                     </div>
@@ -1307,7 +1435,7 @@ server id   role id   sdk open id
                     <div>
                         <div class="card-title">
                             <i class="fas fa-globe"></i>
-                            多文言新闻链接
+                            多语言新闻链接
                         </div>
                         <div class="card-subtitle">已生成不同文言环境的新闻链接</div>
                     </div>
@@ -1333,7 +1461,7 @@ server id   role id   sdk open id
         
         <!-- 页脚 -->
         <div class="footer">
-            <p>多功能数据处理工具 &copy; 2023</p>
+            <p>数据处理工具 &copy; 2025</p>
         </div>
     </div>
 
@@ -1351,7 +1479,7 @@ server id   role id   sdk open id
             virtualScroll: {
                 container: null,
                 content: null,
-                rowHeight: 60,
+                rowHeight: 200,
                 visibleRows: 0,
                 totalRows: 0,
                 startIndex: 0,
@@ -1762,6 +1890,18 @@ server id   role id   sdk open id
                         this.addResultToTable(groupData, itemText, groupIndex);
                     });
                 }
+                
+                // 如果没有结果，显示空状态
+                if (AppState.allGroupResults.length === 0) {
+                    DOM.outputTable.style.display = 'none';
+                    DOM.virtualScrollContainer.style.display = 'none';
+                    DOM.emptyState.style.display = 'block';
+                    DOM.emptyState.innerHTML = `
+                        <i class="fas fa-search"></i>
+                        <h3>未找到匹配结果</h3>
+                        <p>请尝试其他搜索关键词</p>
+                    `;
+                }
             },
             
             /**
@@ -1834,6 +1974,123 @@ server id   role id   sdk open id
                 row.appendChild(actionCell);
                 DOM.outputTableBody.appendChild(row);
             },
+            
+            /**
+             * 初始化虚拟滚动
+             */
+            initVirtualScroll() {
+                const container = DOM.virtualScrollContainer;
+                const content = DOM.virtualScrollContent;
+                
+                // 计算可见行数
+                AppState.virtualScroll.container = container;
+                AppState.virtualScroll.content = content;
+                AppState.virtualScroll.visibleRows = Math.ceil(container.clientHeight / AppState.virtualScroll.rowHeight);
+                AppState.virtualScroll.startIndex = 0;
+                AppState.virtualScroll.endIndex = Math.min(
+                    AppState.virtualScroll.startIndex + AppState.virtualScroll.visibleRows,
+                    AppState.virtualScroll.totalRows
+                );
+                
+                // 设置内容高度
+                content.style.height = `${AppState.virtualScroll.totalRows * AppState.virtualScroll.rowHeight}px`;
+                
+                // 渲染初始可见行
+                this.renderVirtualRows();
+                
+                // 添加滚动事件监听
+                container.addEventListener('scroll', () => this.handleVirtualScroll());
+            },
+            
+            /**
+             * 处理虚拟滚动
+             */
+            handleVirtualScroll() {
+                const container = AppState.virtualScroll.container;
+                const scrollTop = container.scrollTop;
+                
+                // 计算新的起始索引
+                const newStartIndex = Math.floor(scrollTop / AppState.virtualScroll.rowHeight);
+                const newEndIndex = Math.min(
+                    newStartIndex + AppState.virtualScroll.visibleRows,
+                    AppState.virtualScroll.totalRows
+                );
+                
+                // 如果索引范围没有变化，不需要重新渲染
+                if (
+                    newStartIndex === AppState.virtualScroll.startIndex &&
+                    newEndIndex === AppState.virtualScroll.endIndex
+                ) {
+                    return;
+                }
+                
+                // 更新索引
+                AppState.virtualScroll.startIndex = newStartIndex;
+                AppState.virtualScroll.endIndex = newEndIndex;
+                
+                // 渲染新的可见行
+                this.renderVirtualRows();
+            },
+            
+            /**
+             * 渲染虚拟行 - 修复错行问题
+             */
+            renderVirtualRows() {
+                const content = AppState.virtualScroll.content;
+                const startIndex = AppState.virtualScroll.startIndex;
+                const endIndex = AppState.virtualScroll.endIndex;
+                const rowHeight = AppState.virtualScroll.rowHeight;
+                
+                // 清空内容
+                content.innerHTML = '';
+                
+                // 渲染可见行
+                for (let i = startIndex; i < endIndex; i++) {
+                    const groupData = AppState.allGroupResults[i];
+                    const itemText = Utils.convertJsonToExcelText(groupData.items);
+                    
+                    const row = document.createElement('div');
+                    row.className = 'virtual-row';
+                    row.style.height = `${rowHeight}px`;
+                    row.style.top = `${i * rowHeight}px`;
+                    
+                    // 添加行内容 - 使用固定高度的容器
+                    row.innerHTML = `
+                        <div class="virtual-row-content">
+                            <div class="group-cell">
+                                <div class="group-badge">${i + 1}</div>
+                            </div>
+                            <div class="server-cell">${groupData.serverId || 'N/A'}</div>
+                            <div class="role-cell">${groupData.roleId || 'N/A'}</div>
+                            <div class="json-cell">${JSON.stringify(groupData.items)}</div>
+                            <div class="item-text-cell">${itemText}</div>
+                            <div class="action-cell">
+                                <div class="action-btn-group">
+                                    <button class="copy-btn copy-json-btn">
+                                        <i class="fas fa-copy"></i> 复制JSON
+                                    </button>
+                                    <button class="copy-btn copy-text-btn">
+                                        <i class="fas fa-file-excel"></i> 复制文本
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 添加事件监听
+                    const copyJsonBtn = row.querySelector('.copy-json-btn');
+                    copyJsonBtn.addEventListener('click', () => {
+                        Utils.copyToClipboard(JSON.stringify(groupData.items), copyJsonBtn);
+                    });
+                    
+                    const copyTextBtn = row.querySelector('.copy-text-btn');
+                    copyTextBtn.addEventListener('click', () => {
+                        Utils.copyToClipboard(itemText, copyTextBtn);
+                    });
+                    
+                    content.appendChild(row);
+                }
+            },
 
             /**
              * 清空所有输入和结果
@@ -1859,24 +2116,11 @@ server id   role id   sdk open id
              * 加载示例数据
              */
             loadExampleData() {
-                const exampleData = `[1001,20001]
-341008*1
-360260*1
-360145*1
+                const exampleData = `341008*1
 360002*50w
-360522*10
 
-[1002,20002]
-341008*1
-360260*1
-360145*1
-360002*50w
-360522*10
-            
-[1003,20003]
-341008*1
-360260*1
-360145*1
+"341043 *1
+369012 *1"
 
 [1004,20004]
 360002*100w
@@ -2119,18 +2363,6 @@ server id   role id   sdk open id
                 
                 // 重新渲染
                 this.renderResults();
-                
-                // 如果没有结果，显示空状态
-                if (AppState.allGroupResults.length === 0) {
-                    DOM.outputTable.style.display = 'none';
-                    DOM.virtualScrollContainer.style.display = 'none';
-                    DOM.emptyState.style.display = 'block';
-                    DOM.emptyState.innerHTML = `
-                        <i class="fas fa-search"></i>
-                        <h3>未找到匹配结果</h3>
-                        <p>请尝试其他搜索关键词</p>
-                    `;
-                }
             }
         };
 
@@ -2440,11 +2672,6 @@ server id   role id   sdk open id
             loadMailExample() {
                 const exampleData = `server id   role id   sdk open id
 1001        20001     8881001
-1001        20002     8881002
-1002        30001     8882001
-1003        40001     8883001
-1003        40002     8883002
-1004        50001     
 1004        50002     `;
                 
                 DOM.mailInputTextarea.value = exampleData;
@@ -2483,18 +2710,18 @@ server id   role id   sdk open id
                 
                 // 定义多文言环境的URL模板
                 const urlTemplates = [
-                    { name: "越南", lang: "vi", url: `https://www.coaaction.vn/?news-id=${newsId}` },
-                    { name: "台湾", lang: "zh-TW", url: `https://coatw.com/?news-id=${newsId}` },
-                    { name: "国际(英文)", lang: "en", url: `https://coa.nvsgames.com/?news-id=${newsId}` },
+                    { name: "沙盒环境", lang: "sandbox", url: `https://oasis-act.byteintl.net/?language=en-US&news-id=${newsId}` },
+                    { name: "繁体中文", lang: "zh-TW", url: `https://coatw.com/?news-id=${newsId}` },
+                    { name: "英文", lang: "en", url: `https://coa.nvsgames.com/?news-id=${newsId}` },
+                    { name: "泰文", lang: "th", url: `https://coa.nvsgames.com/th-TH?news-id=${newsId}` },
                     { name: "日文", lang: "ja", url: `https://coa.nvsgames.com/ja-JP?news-id=${newsId}` },
+                    { name: "韩文", lang: "ko", url: `https://coa.nvsgames.com/ko_KR?news-id=${newsId}` },
                     { name: "德文", lang: "de", url: `https://coa.nvsgames.com/de_DE?news-id=${newsId}` },
                     { name: "法文", lang: "fr", url: `https://coa.nvsgames.com/fr-FR?news-id=${newsId}` },
-                    { name: "韩文", lang: "ko", url: `https://coa.nvsgames.com/ko_KR?news-id=${newsId}` },
                     { name: "葡语", lang: "pt-BR", url: `https://coa.nvsgames.com/pt-BR?news-id=${newsId}` },
                     { name: "西语", lang: "es-AR", url: `https://coa.nvsgames.com/es-AR?news-id=${newsId}` },
-                    { name: "泰文", lang: "th", url: `https://coa.nvsgames.com/th-TH?news-id=${newsId}` },
                     { name: "印度尼西亚", lang: "id", url: `https://coa.nvsgames.com/id-ID?news-id=${newsId}` },
-                    { name: "沙盒环境", lang: "sandbox", url: `https://oasis-act.byteintl.net/?language=en-US&news-id=${newsId}` }
+                    { name: "越南", lang: "vi", url: `https://www.coaaction.vn/?news-id=${newsId}` },
                 ];
                 
                 // 保存链接
