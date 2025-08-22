@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>多货币商品价格格式化工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: transform 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            color: #1a2a6c;
+            font-size: 1.5rem;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+            background: #1a2a6c;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #1a2a6c;
+            box-shadow: 0 0 0 3px rgba(26, 42, 108, 0.2);
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 8px;
+            flex: 1;
+            min-width: 250px;
+            gap: 10px;
+        }
+        
+        .control-group label {
+            font-weight: 500;
+            color: #555;
+            white-space: nowrap;
+        }
+        
+        input[type="number"], select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-width: 100px;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            background: #1a2a6c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #0d1a4d;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-convert {
+            background: #b21f1f;
+        }
+        
+        .btn-convert:hover {
+            background: #8a1919;
+        }
+        
+        .btn-reset {
+            background: #6c757d;
+        }
+        
+        .btn-reset:hover {
+            background: #5a6268;
+        }
+        
+        .btn-copy {
+            background: #28a745;
+        }
+        
+        .btn-copy:hover {
+            background: #218838;
+        }
+        
+        .results-section {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        th {
+            background: #1a2a6c;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e9ecef;
+        }
+        
+        .price-original {
+            color: #1a2a6c;
+            font-weight: 600;
+        }
+        
+        .price-usd {
+            color: #28a745;
+            font-weight: 600;
+        }
+        
+        .currency-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f8ff;
+            border-radius: 8px;
+        }
+        
+        .currency-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+        }
+        
+        .currency-flag {
+            width: 24px;
+            height: 16px;
+            background-size: cover;
+            border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(20deg);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                min-width: 100%;
+            }
+            
+            header h1 {
+                font-size: 2.2rem;
+            }
+        }
+        
+        /* Dark Mode */
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a, #1e293b, #0f172a);
+            color: #e2e8f0;
+        }
+        
+        body.dark-mode .card {
+            background: #1e293b;
+            color: #cbd5e1;
+        }
+        
+        body.dark-mode .card-title {
+            color: #93c5fd;
+        }
+        
+        body.dark-mode textarea {
+            background: #334155;
+            border-color: #475569;
+            color: #e2e8f0;
+        }
+        
+        body.dark-mode .control-group {
+            background: #334155;
+        }
+        
+        body.dark-mode .control-group label {
+            color: #94a3b8;
+        }
+        
+        body.dark-mode input[type="number"], select {
+            background: #475569;
+            border-color: #64748b;
+            color: #e2e8f0;
+        }
+        
+        body.dark-mode th {
+            background: #0f172a;
+        }
+        
+        body.dark-mode td {
+            border-color: #334155;
+        }
+        
+        body.dark-mode tr:nth-child(even) {
+            background-color: #1e293b;
+        }
+        
+        body.dark-mode tr:hover {
+            background-color: #2d3748;
+        }
+        
+        body.dark-mode .currency-info {
+            background: #1e3a5f;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #28a745;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s, top 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .notification.show {
+            top: 30px;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="notification" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span>结果已复制到剪贴板！</span>
+    </div>
+
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-globe-asia"></i> 多货币价格格式化工具</h1>
+            <p>粘贴错行的商品名称和价格数据，系统将自动格式化并按价格排序，支持多种货币转换为美元</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-edit"></i>
+                    <h2>输入商品数据</h2>
+                </div>
+                <div class="input-section">
+                    <textarea id="itemInput" placeholder="请粘贴商品数据，格式如：
+แพ็กเกจให้พร
+฿179.00
+60 Genesis Crystals
+NT$35.00
+BP อัศวิน
+S$349.00
+300 Genesis Crystals
+Rp179,000
+980 Genesis Crystals
+¥549.00
+..."></textarea>
+                    
+                    <div class="controls">
+                        <div class="control-group">
+                            <label for="sourceCurrency">源货币:</label>
+                            <select id="sourceCurrency">
+                                <option value="THB">泰铢 (THB)</option>
+                                <option value="TWD">台币 (TWD)</option>
+                                <option value="SGD">新加坡币 (SGD)</option>
+                                <option value="IDR">印尼盾 (IDR)</option>
+                                <option value="JPY">日圆 (JPY)</option>
+                                <option value="HKD">港币 (HKD)</option>
+                                <option value="MYR">马来西亚令吉 (MYR)</option>
+                                <option value="PHP">菲律宾比索 (PHP)</option>
+                                <option value="VND">越南盾 (VND)</option>
+                                <option value="KRW">韩元 (KRW)</option>
+                            </select>
+                            
+                            <label for="exchangeRate">汇率 (1 源货币 = USD):</label>
+                            <input type="number" id="exchangeRate" min="0" step="0.000001" value="0.027">
+                        </div>
+                        
+                        <button class="btn" id="formatBtn">
+                            <i class="fas fa-cogs"></i> 格式化并排序
+                        </button>
+                        
+                        <button class="btn btn-convert" id="convertBtn">
+                            <i class="fas fa-dollar-sign"></i> 转换为美元
+                        </button>
+                        
+                        <button class="btn btn-copy" id="copyBtn">
+                            <i class="fas fa-copy"></i> 复制结果
+                        </button>
+                        
+                        <button class="btn btn-reset" id="resetBtn">
+                            <i class="fas fa-redo"></i> 重置
+                        </button>
+                    </div>
+                    
+                    <div class="currency-info">
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/th.svg')"></div>
+                            <span>泰铢 (THB) - ฿</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/tw.svg')"></div>
+                            <span>台币 (TWD) - NT$</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/sg.svg')"></div>
+                            <span>新加坡币 (SGD) - S$</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/id.svg')"></div>
+                            <span>印尼盾 (IDR) - Rp</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/jp.svg')"></div>
+                            <span>日圆 (JPY) - ¥</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/hk.svg')"></div>
+                            <span>港币 (HKD) - HK$</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/my.svg')"></div>
+                            <span>马来西亚令吉 (MYR) - RM</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/ph.svg')"></div>
+                            <span>菲律宾比索 (PHP) - ₱</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/vn.svg')"></div>
+                            <span>越南盾 (VND) - ₫</span>
+                        </div>
+                        <div class="currency-item">
+                            <div class="currency-flag" style="background-image: url('https://flagcdn.com/kr.svg')"></div>
+                            <span>韩元 (KRW) - ₩</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card results-section">
+                <div class="card-title">
+                    <i class="fas fa-list-ol"></i>
+                    <h2>格式化结果</h2>
+                </div>
+                <div id="resultsContainer">
+                    <table id="resultsTable">
+                        <thead>
+                            <tr>
+                                <th>序号</th>
+                                <th>商品名称</th>
+                                <th>原始价格</th>
+                                <th>美元价格 (USD)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <!-- 结果将通过JavaScript动态填充 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2023 多货币价格格式化工具 | 支持多种亚洲货币转换 | 使用HTML、CSS和JavaScript构建</p>
+        </footer>
+    </div>
+
+    <script src="tool.js"></script>
+</body>
+</html>
