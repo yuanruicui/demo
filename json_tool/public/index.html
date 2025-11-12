@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数据处理工具</title>
+    <title>多功能数据处理工具 - 增强版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         /* ===== 全局样式 ===== */
         :root {
@@ -170,6 +171,8 @@
         .tab:hover:not(.active) {
             background: rgba(0, 113, 227, 0.1);
         }
+
+        .tab.dragging { opacity: 0.6; }
 
         /* ===== 卡片样式 ===== */
         .card {
@@ -710,7 +713,13 @@
             font-weight: 600;
             color: var(--accent-blue);
             font-size: 18px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.3s ease, transform 0.2s ease;
         }
+        .server-id.copied { background: rgba(0, 113, 227, 0.1); border-radius: 6px; padding: 2px 6px; transform: translateY(-1px); }
+        .server-id.copied::after { content: '已复制'; position: absolute; top: -8px; right: -8px; background: var(--accent-green); color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 10px; opacity: 0; animation: copyHint 1.6s ease forwards; }
+        @keyframes copyHint { 0% { opacity: 1; transform: translateY(-5px); } 80% { opacity: 1; } 100% { opacity: 0; transform: translateY(-10px); } }
 
         .server-card-body {
             max-height: 200px;
@@ -907,89 +916,6 @@
             animation: fadeIn 0.5s ease forwards;
         }
 
-        /* ===== 虚拟滚动样式 ===== */
-        .virtual-scroll-container {
-            height: 500px;
-            overflow-y: auto;
-            position: relative;
-            background: var(--bg-secondary);
-            border-radius: var(--element-radius);
-            border: 1px solid var(--border-color);
-            display: none;
-        }
-
-        .virtual-scroll-content {
-            position: relative;
-        }
-
-        .virtual-row {
-            position: absolute;
-            left: 0;
-            right: 0;
-            display: flex;
-            align-items: center;
-            padding: 15px 20px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            height: 80px;
-            box-sizing: border-box;
-        }
-
-        .virtual-row-content {
-            display: flex;
-            width: 100%;
-            align-items: center;
-        }
-
-        .virtual-row-content > div {
-            padding: 0 10px;
-            overflow: hidden;
-        }
-
-        .virtual-row-content .group-cell {
-            width: 5%;
-            min-width: 60px;
-        }
-
-        .virtual-row-content .server-cell {
-            width: 10%;
-            min-width: 100px;
-            font-weight: 500;
-            font-family: 'SF Mono', Menlo, monospace;
-            color: var(--accent-purple);
-        }
-
-        .virtual-row-content .role-cell {
-            width: 10%;
-            min-width: 100px;
-            font-weight: 500;
-            font-family: 'SF Mono', Menlo, monospace;
-            color: var(--accent-cyan);
-        }
-
-        .virtual-row-content .json-cell {
-            width: 30%;
-            max-height: 70px;
-            overflow-y: auto;
-            font-family: 'SF Mono', Menlo, monospace;
-            font-size: 14px;
-            word-break: break-all;
-        }
-
-        .virtual-row-content .item-text-cell {
-            width: 30%;
-            max-height: 70px;
-            overflow-y: auto;
-            white-space: pre-line;
-            font-family: 'SF Mono', Menlo, monospace;
-            font-size: 14px;
-        }
-
-        .virtual-row-content .action-cell {
-            width: 15%;
-            text-align: center;
-        }
-        
         /* ===== 响应式设计 ===== */
         @media (max-width: 1200px) {
             .json-cell, .item-text-cell {
@@ -998,11 +924,6 @@
             
             .history-templates {
                 flex-direction: column;
-            }
-            
-            .virtual-row-content .json-cell, 
-            .virtual-row-content .item-text-cell {
-                font-size: 12px;
             }
         }
 
@@ -1040,34 +961,6 @@
                 width: 100%;
                 margin-top: 10px;
                 justify-content: flex-end;
-            }
-            
-            .virtual-row-content {
-                flex-wrap: wrap;
-                height: auto;
-            }
-            
-            .virtual-row {
-                height: auto;
-                min-height: 80px;
-            }
-            
-            .virtual-row-content .group-cell,
-            .virtual-row-content .server-cell,
-            .virtual-row-content .role-cell {
-                min-width: 50px;
-                width: 15%;
-            }
-            
-            .virtual-row-content .json-cell,
-            .virtual-row-content .item-text-cell {
-                width: 40%;
-                max-height: 60px;
-            }
-            
-            .virtual-row-content .action-cell {
-                width: 100%;
-                margin-top: 10px;
             }
         }
 
@@ -1111,34 +1004,136 @@
             .tabs-container {
                 flex-direction: column;
             }
-            
-            .virtual-row {
-                flex-wrap: wrap;
-                height: auto;
-                position: relative;
-                padding: 15px;
-            }
-            
-            .virtual-row-content {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .virtual-row-content > div {
-                width: 100% !important;
-                padding: 0;
-            }
-            
-            .action-btn-group {
-                flex-direction: row;
-                margin-top: 10px;
-            }
-            
-            .virtual-row-content .json-cell,
-            .virtual-row-content .item-text-cell {
-                max-height: 100px;
-            }
         }
+
+        /* 大数据结果的可读性优化 */
+        .output-table .json-cell,
+        .output-table .item-text-cell {
+            white-space: pre-wrap;
+            word-break: normal;
+            overflow-x: auto;
+        }
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .pagination-controls input[type="number"] {
+            width: 80px;
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+        .pagination-controls .btn-page {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+
+        .excel-app * { box-sizing: border-box; }
+        .excel-app .container { background-color: var(--bg-secondary); border-radius: var(--element-radius); box-shadow: var(--shadow); padding: 30px; width: 100%; max-width: 800px; margin: 0 auto; }
+        .excel-app h1 { font-size: 28px; margin-bottom: 25px; text-align: center; color: var(--text-primary); font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .excel-app h1 i { color: var(--accent-blue); }
+        .excel-app .upload-area { border: 2px dashed var(--border-color); border-radius: var(--element-radius); padding: 40px 30px; text-align: center; margin-bottom: 25px; transition: var(--transition); display: flex; flex-direction: column; align-items: center; }
+        .excel-app .upload-area.active { border-color: var(--accent-blue); background-color: rgba(0, 113, 227, 0.05); }
+        .excel-app .upload-area i { font-size: 48px; color: var(--accent-blue); margin-bottom: 15px; }
+        .excel-app .upload-area p { margin-bottom: 20px; color: var(--text-secondary); font-size: 16px; }
+        .excel-app .upload-btn { background-color: var(--accent-blue); color: white; border: none; border-radius: 20px; padding: 12px 28px; font-size: 16px; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
+        .excel-app .upload-btn:hover { background-color: #0066cc; }
+        .excel-app .file-info { margin-top: 15px; font-size: 14px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 5px; }
+        .excel-app #file-input { display: none; }
+        .excel-app .options { margin-bottom: 25px; padding: 20px; border-radius: var(--element-radius); background-color: rgba(0, 0, 0, 0.02); }
+        .excel-app .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .excel-app .option-item { display: flex; align-items: center; }
+        .excel-app .option-item input[type="checkbox"] { margin-right: 12px; width: 20px; height: 20px; cursor: pointer; }
+        .excel-app .option-item input[type="text"] { padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; flex: 1; transition: var(--transition); }
+        .excel-app .option-item input[type="text"]:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1); }
+        .excel-app .option-item label { font-weight: 500; cursor: pointer; }
+        .excel-app .language-selection { margin: 20px 0; max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--element-radius); padding: 20px; display: none; }
+        .excel-app .language-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .excel-app .select-all { background: none; border: none; color: var(--accent-blue); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .excel-app .language-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+        .excel-app .language-item { display: flex; align-items: center; padding: 8px; border-radius: 6px; transition: var(--transition); }
+        .excel-app .language-item:hover { background-color: rgba(0, 113, 227, 0.05); }
+        .excel-app .language-item input[type="checkbox"] { margin-right: 10px; }
+        .excel-app .export-btn { background-color: var(--accent-blue); color: white; border: none; border-radius: 24px; padding: 14px 40px; font-size: 17px; font-weight: 600; cursor: pointer; transition: var(--transition); display: block; margin: 20px auto; width: 100%; max-width: 300px; }
+        .excel-app .export-btn:hover { background-color: #0066cc; }
+        .excel-app .export-btn:disabled { background-color: var(--text-secondary); cursor: not-allowed; }
+        .excel-app .result { margin-top: 30px; padding: 25px; border-radius: var(--element-radius); background-color: rgba(0, 113, 227, 0.03); display: none; border: 1px solid var(--border-color); }
+        .excel-app .result h3 { margin-bottom: 18px; color: var(--accent-blue); display: flex; align-items: center; gap: 10px; }
+        .excel-app .file-list { list-style-type: none; }
+        .excel-app .file-item { padding: 12px 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; transition: var(--transition); animation: fadeIn 0.5s ease; }
+        .excel-app .file-item:hover { background-color: rgba(0, 113, 227, 0.03); }
+        .excel-app .file-item:last-child { border-bottom: none; }
+        .excel-app .file-item a { color: var(--accent-blue); text-decoration: none; display: flex; align-items: center; gap: 6px; font-weight: 500; padding: 6px 12px; border-radius: 6px; transition: var(--transition); }
+        .excel-app .file-item a:hover { background-color: rgba(0, 113, 227, 0.1); }
+        .excel-app .status { text-align: center; margin-top: 20px; padding: 15px; border-radius: var(--element-radius); display: none; font-weight: 500; }
+        .excel-app .status.success { background-color: rgba(52, 199, 89, 0.1); color: #34c759; display: block; border: 1px solid rgba(52, 199, 89, 0.2); }
+        .excel-app .status.error { background-color: rgba(255, 59, 48, 0.1); color: #ff3b30; display: block; border: 1px solid rgba(255, 59, 48, 0.2); }
+        .excel-app .status.processing { background-color: rgba(0, 113, 227, 0.1); color: var(--accent-blue); display: block; border: 1px solid rgba(0, 113, 227, 0.2); }
+        .excel-app .progress-container { width: 100%; height: 12px; background-color: #e0e0e0; border-radius: 10px; margin: 20px 0; display: none; overflow: hidden; }
+        .excel-app .progress-bar { height: 100%; background-color: var(--accent-blue); border-radius: 10px; width: 0%; transition: width 0.5s ease; }
+        .excel-app .batch-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+        .excel-app .batch-btn { background: none; border: none; color: var(--accent-blue); cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 6px; transition: var(--transition); }
+        .excel-app .batch-btn:hover { background-color: rgba(0, 113, 227, 0.1); }
+        .excel-app .merge-section { margin: 20px 0; padding: 20px; border-radius: var(--element-radius); background-color: rgba(255, 149, 0, 0.05); border: 1px solid rgba(255, 149, 0, 0.2); display: none; }
+        .excel-app .merge-section h3 { margin-bottom: 15px; color: var(--accent-orange); display: flex; align-items: center; gap: 10px; }
+        .excel-app .merge-section h3 i { color: var(--accent-orange); }
+        .excel-app .merge-option { display: flex; flex-direction: column; gap: 15px; }
+        .excel-app .merge-checkbox { display: flex; align-items: center; }
+        .excel-app .merge-checkbox input[type="checkbox"] { margin-right: 10px; width: 20px; height: 20px; }
+        .excel-app .merge-checkbox label { font-weight: 500; cursor: pointer; }
+        .excel-app .merge-details { display: none; padding: 15px; background-color: rgba(255, 255, 255, 0.5); border-radius: var(--element-radius); border: 1px solid var(--border-color); }
+        .excel-app .merge-details .option-item { margin-bottom: 15px; }
+        .excel-app .duplicate-options { display: none; padding: 15px; background-color: rgba(255, 149, 0, 0.05); border-radius: var(--element-radius); margin-top: 15px; border: 1px solid rgba(255, 149, 0, 0.2); }
+        .excel-app .duplicate-options h4 { margin-bottom: 10px; color: var(--accent-orange); }
+        .excel-app .duplicate-option { display: flex; align-items: center; margin-bottom: 10px; }
+        .excel-app .duplicate-option input[type="radio"] { margin-right: 10px; }
+        @media (max-width: 768px) {
+          .excel-app .container { padding: 25px 20px; }
+          .excel-app h1 { font-size: 24px; }
+          .excel-app .upload-area { padding: 30px 20px; }
+          .excel-app .options-grid { grid-template-columns: 1fr; gap: 15px; }
+          .excel-app .language-list { grid-template-columns: 1fr; }
+          .excel-app .export-btn { max-width: 100%; }
+        }
+
+        .multilingual-app .card { background: var(--bg-secondary); border-radius: var(--card-radius); box-shadow: var(--shadow); padding: 28px; margin-bottom: 30px; transition: var(--transition); overflow: hidden; }
+        .multilingual-app .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .multilingual-app .card-title { font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: color 0.5s ease; }
+        .multilingual-app .card-title i { color: var(--accent-blue); font-size: 20px; }
+        .multilingual-app .card-subtitle { font-size: 14px; color: var(--text-secondary); margin-top: 5px; font-weight: 400; }
+        .multilingual-app .form-group { margin-bottom: 18px; }
+        .multilingual-app label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-primary); }
+        .multilingual-app input, .multilingual-app textarea, .multilingual-app select { width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: var(--element-radius); background: var(--bg-tertiary); color: var(--text-primary); font-family: inherit; font-size: 15px; transition: var(--transition); }
+        .multilingual-app input:focus, .multilingual-app textarea:focus, .multilingual-app select:focus { outline: none; border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15); }
+        .multilingual-app textarea { min-height: 120px; resize: vertical; }
+        .multilingual-app .btn { padding: 10px 16px; border-radius: var(--element-radius); border: none; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: var(--transition); }
+        .multilingual-app .btn-primary { background: var(--accent-blue); color: white; }
+        .multilingual-app .btn-secondary { background: var(--accent-green); color: white; }
+        .multilingual-app .btn-danger { background: var(--accent-red); color: white; }
+        .multilingual-app .btn-purple { background: var(--accent-purple); color: white; }
+        .multilingual-app .btn-orange { background: var(--accent-orange); color: white; }
+        .multilingual-app .btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+        .multilingual-app .btn:active { transform: translateY(0); }
+        .multilingual-app .btn-group { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+        .multilingual-app .language-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; max-height: 200px; overflow-y: auto; padding: 15px; border: 1px solid var(--border-color); border-radius: var(--element-radius); background: var(--bg-tertiary); }
+        .multilingual-app .language-btn { padding: 8px 14px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--element-radius); cursor: pointer; transition: var(--transition); font-size: 13px; color: var(--text-primary); }
+        .multilingual-app .language-btn:hover { background: rgba(0, 113, 227, 0.1); border-color: var(--accent-blue); }
+        .multilingual-app .language-btn.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+        .multilingual-app .content-display { margin-top: 20px; padding: 20px; border: 1px solid var(--border-color); border-radius: var(--element-radius); min-height: 200px; background: var(--bg-tertiary); }
+        .multilingual-app .content-title { font-size: 20px; font-weight: 600; margin-bottom: 15px; color: var(--accent-blue); }
+        .multilingual-app .content-body { white-space: pre-wrap; line-height: 1.8; color: var(--text-primary); }
+        .multilingual-app .json-output { margin-top: 20px; padding: 20px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--element-radius); overflow-x: auto; font-family: 'SF Mono', Menlo, monospace; white-space: pre-wrap; font-size: 14px; line-height: 1.5; color: var(--text-primary); }
+        .multilingual-app .success-message { margin-top: 15px; padding: 12px 16px; background: var(--accent-green); color: white; border-radius: var(--element-radius); display: none; font-size: 14px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .multilingual-app .fade-in { animation: fadeIn 0.5s ease forwards; }
     </style>
 </head>
 <body>
@@ -1149,7 +1144,7 @@
                 <div class="logo-icon">
                     <i class="fas fa-exchange-alt"></i>
                 </div>
-                <div class="logo-text">数据处理工具</div>
+                <div class="logo-text">多功能数据处理工具</div>
             </div>
             <div class="controls">
                 <button class="theme-toggle" id="themeToggle" aria-label="切换主题">
@@ -1160,9 +1155,11 @@
 
         <!-- 选项卡导航 -->
         <div class="tabs-container">
-            <div class="tab active" data-tab="item-converter">批量物品转换</div>
-            <div class="tab" data-tab="mail-template">多人邮件数据转换</div>
-            <div class="tab" data-tab="news-generator">生成多语言链接</div>
+            <div class="tab active" data-tab="item-converter">物品转换</div>
+            <div class="tab" data-tab="mail-template">邮件模板</div>
+            <div class="tab" data-tab="news-generator">新闻链接</div>
+            <div class="tab" data-tab="excel-csv">Excel转CSV</div>
+            <div class="tab" data-tab="multilingual-display">多语言展示</div>
         </div>
 
         <!-- 物品转换工具 -->
@@ -1180,8 +1177,17 @@
                 </div>
                 <div class="input-section">
                     <textarea id="inputData" placeholder="例如:
+[1001,20001]
 341008*1
+360260*1
+360145*1
 360002*50w
+360522*10
+
+[1002,20002]
+341008*1
+360260*1
+360145*1
 
 [1003,20003]
 360002*100w
@@ -1286,7 +1292,7 @@
                     </table>
                     
                     <!-- 虚拟滚动容器 -->
-                    <div class="virtual-scroll-container" id="virtualScrollContainer">
+                    <div class="virtual-scroll-container" id="virtualScrollContainer" style="display: none;">
                         <div class="virtual-scroll-content" id="virtualScrollContent"></div>
                     </div>
                 </div>
@@ -1309,6 +1315,85 @@
             </div>
         </div>
 
+        <div id="excel-csv" class="tool-container" style="display: none;">
+            <section class="excel-app">
+                <div class="container">
+                    <h1><i class="fas fa-file-excel"></i> Excel转CSV工具</h1>
+                    <div class="upload-area" id="upload-area">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>拖放Excel文件到此处，或点击下方按钮选择文件</p>
+                        <button class="upload-btn" id="select-file-btn"><i class="fas fa-file-upload"></i> 选择Excel文件</button>
+                        <div class="file-info" id="file-info"><span>支持 .xlsx 和 .xls 格式</span></div>
+                        <input type="file" id="file-input" accept=".xlsx, .xls" multiple>
+                    </div>
+                    <div class="options">
+                        <div class="option-item"><label for="custom-name">输出文件名前缀：</label><input type="text" id="custom-name" placeholder="例如：数据导出"></div>
+                        <div class="options-grid">
+                            <div class="option-item"><input type="checkbox" id="include-header" checked><label for="include-header">包含表头</label></div>
+                        </div>
+                    </div>
+                    <div class="language-selection" id="language-selection">
+                        <div class="language-header">
+                            <h3>选择要导出的语言：</h3>
+                            <button class="select-all" id="select-all-btn"><i class="fas fa-check-square"></i> 全选</button>
+                        </div>
+                        <div class="language-list" id="language-list"></div>
+                    </div>
+                    <div class="merge-section" id="merge-section">
+                        <h3><i class="fas fa-object-group"></i> 合并选项</h3>
+                        <div class="merge-option">
+                            <div class="merge-checkbox"><input type="checkbox" id="merge-languages"><label for="merge-languages">合并所选语言到一个文件</label></div>
+                            <div class="merge-details" id="merge-details">
+                                <div class="option-item"><label for="merged-filename">合并文件名：</label><input type="text" id="merged-filename" placeholder="例如：多语言合并数据"></div>
+                            </div>
+                        </div>
+                        <div class="duplicate-options" id="duplicate-options">
+                            <h4>检测到重复数据，请选择处理方式：</h4>
+                            <div class="duplicate-option"><input type="radio" id="keep-duplicates" name="duplicate-handling" value="keep" checked><label for="keep-duplicates">保留所有数据（包括重复项）</label></div>
+                            <div class="duplicate-option"><input type="radio" id="remove-duplicates" name="duplicate-handling" value="remove"><label for="remove-duplicates">移除重复数据</label></div>
+                        </div>
+                    </div>
+                    <div class="progress-container" id="progress-container"><div class="progress-bar" id="progress-bar"></div></div>
+                    <button class="export-btn" id="export-btn" disabled><i class="fas fa-download"></i> 导出CSV文件</button>
+                    <div class="status" id="status"></div>
+                    <div class="result" id="result">
+                        <h3><i class="fas fa-check-circle"></i> 导出完成</h3>
+                        <ul class="file-list" id="file-list"></ul>
+                        <div class="batch-actions"><button class="batch-btn" id="download-all-btn"><i class="fas fa-download"></i> 下载全部文件</button></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div id="multilingual-display" class="tool-container" style="display: none;">
+            <section class="multilingual-app">
+                <div class="card fade-in" style="animation-delay: 0.1s;">
+                    <div class="card-header"><div><div class="card-title"><i class="fas fa-plus-circle"></i>添加新的语言内容</div><div class="card-subtitle">添加或更新多语言内容</div></div></div>
+                    <div class="form-group"><label for="languageCode">语言</label><select id="languageCode"><option value="1">1 - 简体中文</option><option value="2">2 - 繁体中文</option><option value="3">3 - 英语</option><option value="4">4 - 日语</option><option value="5">5 - 泰语</option><option value="6">6 - 阿拉伯语</option><option value="7">7 - 韩语</option><option value="8">8 - 印尼语</option><option value="9">9 - 西班牙语</option><option value="10">10 - 葡萄牙语</option><option value="11">11 - 越南语</option><option value="12">12 - 俄语</option><option value="13">13 - 土耳其语</option><option value="14">14 - 德语</option><option value="15">15 - 法语</option><option value="16">16 - 意大利语</option><option value="17">17 - 荷兰语</option><option value="18">18 - 波兰语</option><option value="19">19 - 印地语</option><option value="20">20 - 马来语</option><option value="21">21 - 菲律宾语</option></select></div>
+                    <div class="form-group"><label for="title">标题</label><input type="text" id="title" placeholder="输入标题"></div>
+                    <div class="form-group"><label for="content">内容</label><textarea id="content" placeholder="输入内容，使用Enter键换行"></textarea></div>
+                    <div class="btn-group"><button class="btn btn-primary" id="addButton"><i class="fas fa-plus"></i>添加内容</button><button class="btn btn-secondary" id="clearButton"><i class="fas fa-eraser"></i>清空表单</button><button class="btn btn-danger" id="clearAllButton"><i class="fas fa-trash"></i>清空所有</button><button class="btn btn-purple" id="copyButton"><i class="fas fa-copy"></i>复制JSON</button><button class="btn btn-orange" id="exportButton"><i class="fas fa-file-export"></i>导出Excel</button></div>
+                    <div class="success-message" id="successMessage"><i class="fas fa-check-circle"></i>内容添加成功！</div>
+                    <div class="success-message" id="copyMessage"><i class="fas fa-check-circle"></i>JSON复制成功！</div>
+                    <div class="success-message" id="clearAllMessage"><i class="fas fa-check-circle"></i>所有内容已清空！</div>
+                    <div class="success-message" id="exportMessage"><i class="fas fa-check-circle"></i>Excel导出成功！</div>
+                </div>
+                <div class="card fade-in" style="animation-delay: 0.2s;">
+                    <div class="card-header"><div><div class="card-title"><i class="fas fa-file-import"></i>批量导入多语言内容</div><div class="card-subtitle">上传Excel文件导入多语言内容</div></div></div>
+                    <div class="file-upload"><input type="file" id="fileInput" accept=".xlsx,.xls"><label for="fileInput"><i class="fas fa-cloud-upload-alt"></i><p>点击或拖拽Excel文件到此处上传</p><small>支持.xlsx和.xls格式文件</small></label></div>
+                    <div class="success-message" id="importMessage"><i class="fas fa-check-circle"></i>批量导入成功！</div>
+                </div>
+                <div class="card fade-in" style="animation-delay: 0.3s;">
+                    <div class="card-header"><div><div class="card-title"><i class="fas fa-globe"></i>选择语言查看内容</div><div class="card-subtitle">点击语言按钮查看对应内容</div></div></div>
+                    <div class="language-selector" id="languageSelector"></div>
+                    <div class="content-display"><div class="content-title" id="contentTitle">请选择一种语言</div><div class="content-body" id="contentBody"></div></div>
+                </div>
+                <div class="card fade-in" style="animation-delay: 0.4s;">
+                    <div class="card-header"><div><div class="card-title"><i class="fas fa-code"></i>JSON数据</div><div class="card-subtitle">所有语言内容的JSON格式</div></div></div>
+                    <div class="json-output" id="jsonOutput"></div>
+                </div>
+            </section>
+        </div>
         <!-- 邮件模板工具 -->
         <div id="mail-template" class="tool-container" style="display: none;">
             <!-- 输入区域卡片 -->
@@ -1325,11 +1410,17 @@
                 <div class="input-section">
                     <textarea id="mailInputData" placeholder="例如:
 1001 20001
-1003 40002
+1001 20002
+1002 30001
+1003 40001 8880001
+1003 40002 8880002
 
 或者带表头:
 server id   role id   sdk open id
 1001        20001
+1001        20002
+1002        30001
+1003        40001     8880001
 1003        40002     8880002"></textarea>
                     
                     <div class="error-msg" id="mailErrorMsg">
@@ -1405,7 +1496,7 @@ server id   role id   sdk open id
                     <div>
                         <div class="card-title">
                             <i class="fas fa-link"></i>
-                            官网多语言链接生成工具
+                            新闻链接生成工具
                         </div>
                         <div class="card-subtitle">输入新闻ID，生成多文言环境的新闻链接</div>
                     </div>
@@ -1435,7 +1526,7 @@ server id   role id   sdk open id
                     <div>
                         <div class="card-title">
                             <i class="fas fa-globe"></i>
-                            多语言新闻链接
+                            多文言新闻链接
                         </div>
                         <div class="card-subtitle">已生成不同文言环境的新闻链接</div>
                     </div>
@@ -1461,7 +1552,7 @@ server id   role id   sdk open id
         
         <!-- 页脚 -->
         <div class="footer">
-            <p>数据处理工具 &copy; 2025</p>
+            <p>多功能数据处理工具 &copy; 2023</p>
         </div>
     </div>
 
@@ -1479,7 +1570,7 @@ server id   role id   sdk open id
             virtualScroll: {
                 container: null,
                 content: null,
-                rowHeight: 200,
+                rowHeight: 60,
                 visibleRows: 0,
                 totalRows: 0,
                 startIndex: 0,
@@ -1555,6 +1646,8 @@ server id   role id   sdk open id
             itemConverterContainer: document.getElementById('item-converter'),
             mailTemplateContainer: document.getElementById('mail-template'),
             newsGeneratorContainer: document.getElementById('news-generator')
+            , excelCsvContainer: document.getElementById('excel-csv')
+            , multilingualDisplayContainer: document.getElementById('multilingual-display')
         };
 
         // ================ 工具函数 ================
@@ -1728,134 +1821,148 @@ server id   role id   sdk open id
                     Utils.showErrorMsg('请输入数据');
                     return;
                 }
-
                 try {
-                    // 支持两种分组方式：空行或引号包裹
-                    let groups = [];
-                    
-                    // 使用正则表达式匹配引号分组
-                    const quoteGroups = input.match(/"([\s\S]*?)"/g);
-                    
-                    if (quoteGroups && quoteGroups.length > 0) {
-                        // 提取引号内的内容作为分组
-                        quoteGroups.forEach(group => {
-                            const content = group.replace(/"/g, '').trim();
-                            if (content) groups.push(content);
-                        });
-                        
-                        // 移除引号分组部分
-                        input = input.replace(/"([\s\S]*?)"/g, '');
-                    }
-                    
-                    // 按空行分组处理剩余部分
-                    const nonQuoteGroups = input.split(/\n\s*\n/).map(group => group.trim()).filter(group => group);
-                    groups = groups.concat(nonQuoteGroups);
-
                     AppState.allGroupResults = [];
                     AppState.allItemTexts = [];
                     DOM.errorMsg.classList.remove('show');
                     DOM.outputTableBody.innerHTML = '';
 
-                    if (groups.length === 0) {
-                        Utils.showErrorMsg('未检测到有效数据组');
-                        return;
-                    }
+                    const lines = input.split(/\r?\n/);
+                    let currentGroupItems = [];
+                    let serverId = '';
+                    let roleId = '';
+                    let groupIndex = 0;
+                    const startQuotes = ['"', '“', '‘'];
+                    const endQuoteMap = { '"': '"', '“': '”', '‘': '’' };
 
-                    // 处理每个组
-                    groups.forEach((group, groupIndex) => {
-                        const lines = group.split(/\n|\r/).filter(line => line.trim() !== '');
-                        
-                        // 初始化服务器ID和角色ID
-                        let serverId = '';
-                        let roleId = '';
-                        let itemsStartIndex = 0;
-                        
-                        // 检查第一行是否为服务器ID和角色ID
-                        if (lines.length > 0 && lines[0].startsWith('[')) {
-                            const idLine = lines[0].replace(/[\[\]]/g, '');
+                    const pushGroup = () => {
+                        if (currentGroupItems.length > 0) {
+                            AppState.allGroupResults.push({
+                                serverId: serverId,
+                                roleId: roleId,
+                                items: currentGroupItems.slice(),
+                                originalIndex: groupIndex
+                            });
+                            const itemText = Utils.convertJsonToExcelText(currentGroupItems);
+                            AppState.allItemTexts.push(itemText);
+                            groupIndex++;
+                        }
+                        currentGroupItems = [];
+                        serverId = '';
+                        roleId = '';
+                    };
+
+                    for (let li = 0; li < lines.length; li++) {
+                        const raw = lines[li];
+                        const line = raw.trim();
+                        if (startQuotes.some(ch => line.startsWith(ch))) {
+                            const qStart = startQuotes.find(ch => line.startsWith(ch));
+                            const qEnd = endQuoteMap[qStart];
+                            let content = line.slice(qStart.length);
+                            let buffer = [];
+                            if (content.endsWith(qEnd)) {
+                                content = content.slice(0, -qEnd.length);
+                                if (content) buffer.push(content);
+                            } else {
+                                if (content) buffer.push(content);
+                                for (let j = li + 1; j < lines.length; j++) {
+                                    const s = lines[j].trim();
+                                    if (s.endsWith(qEnd)) {
+                                        const last = s.slice(0, -qEnd.length);
+                                        if (last) buffer.push(last);
+                                        li = j;
+                                        break;
+                                    } else {
+                                        buffer.push(s);
+                                    }
+                                }
+                            }
+                            currentGroupItems = [];
+                            for (const qb of buffer) {
+                                const parts = qb.split('*');
+                                if (parts.length !== 2) continue;
+                                const itemId = parts[0].replace(/['"]/g, '').trim();
+                                const countStr = parts[1].replace(/['"]/g, '').trim();
+                                let itemCount;
+                                if (countStr.toLowerCase().endsWith('w')) {
+                                    const num = parseFloat(countStr.replace(/w/gi, ''));
+                                    if (isNaN(num)) continue;
+                                    itemCount = Math.round(num * 10000);
+                                } else {
+                                    itemCount = parseInt(countStr, 10);
+                                    if (isNaN(itemCount)) continue;
+                                }
+                                currentGroupItems.push({ itemId, itemCount });
+                            }
+                            pushGroup();
+                            continue;
+                        }
+                        if (!line) {
+                            if (currentGroupItems.length > 0 || (serverId || roleId)) {
+                                pushGroup();
+                            }
+                            continue;
+                        }
+                        if (line.startsWith('[')) {
+                            if (currentGroupItems.length > 0 || (serverId || roleId)) {
+                                pushGroup();
+                            }
+                            const idLine = line.replace(/[\[\]]/g, '');
                             const idParts = idLine.split(',');
                             if (idParts.length >= 2) {
                                 serverId = idParts[0].trim();
                                 roleId = idParts[1].trim();
-                                itemsStartIndex = 1;
-                            }
-                        }
-                        
-                        const groupResult = [];
-                        
-                        // 处理每行物品数据
-                        for (let i = itemsStartIndex; i < lines.length; i++) {
-                            const line = lines[i];
-                            const trimmedLine = line.trim();
-                            if (!trimmedLine) continue;
-
-                            const parts = trimmedLine.split('*');
-                            if (parts.length !== 2) {
-                                Utils.showErrorMsg(`第${groupIndex+1}组第${i+1}行格式错误，正确格式: itemId*count`);
-                                continue;
-                            }
-
-                            // 移除引号
-                            const [itemId, countStr] = parts.map(part => part.replace(/['"]/g, ''));
-                            if (!itemId || !countStr) {
-                                Utils.showErrorMsg(`第${groupIndex+1}组第${i+1}行缺少必要参数`);
-                                continue;
-                            }
-
-                            // 处理数量单位（w = 10000）
-                            let itemCount;
-                            if (countStr.toLowerCase().endsWith('w')) {
-                                const num = parseFloat(countStr.replace(/w/gi, ''));
-                                if (isNaN(num)) {
-                                    Utils.showErrorMsg(`第${groupIndex+1}组第${i+1}行数量格式错误: ${countStr}`);
-                                    continue;
-                                }
-                                itemCount = Math.round(num * 10000);
                             } else {
-                                itemCount = parseInt(countStr, 10);
-                                if (isNaN(itemCount)) {
-                                    Utils.showErrorMsg(`第${groupIndex+1}组第${i+1}行数量格式错误: ${countStr}`);
-                                    continue;
-                                }
+                                serverId = '';
+                                roleId = '';
                             }
-
-                            groupResult.push({
-                                itemId: itemId.trim(),
-                                itemCount: itemCount
-                            });
+                            continue;
                         }
-
-                        if (groupResult.length > 0) {
-                            AppState.allGroupResults.push({
-                                serverId: serverId,
-                                roleId: roleId,
-                                items: groupResult,
-                                originalIndex: groupIndex
-                            });
-                            // 生成Excel兼容的文本
-                            const itemText = Utils.convertJsonToExcelText(groupResult);
-                            AppState.allItemTexts.push(itemText);
+                        const parts = line.split('*');
+                        if (parts.length !== 2) {
+                            Utils.showErrorMsg(`第${groupIndex+1}组行格式错误，正确格式: itemId*count`);
+                            continue;
                         }
-                    });
+                        const itemId = parts[0].replace(/['"]/g, '').trim();
+                        const countStr = parts[1].replace(/['"]/g, '').trim();
+                        if (!itemId || !countStr) {
+                            Utils.showErrorMsg(`第${groupIndex+1}组行缺少必要参数`);
+                            continue;
+                        }
+                        let itemCount;
+                        if (countStr.toLowerCase().endsWith('w')) {
+                            const num = parseFloat(countStr.replace(/w/gi, ''));
+                            if (isNaN(num)) {
+                                Utils.showErrorMsg(`第${groupIndex+1}组数量格式错误: ${countStr}`);
+                                continue;
+                            }
+                            itemCount = Math.round(num * 10000);
+                        } else {
+                            itemCount = parseInt(countStr, 10);
+                            if (isNaN(itemCount)) {
+                                Utils.showErrorMsg(`第${groupIndex+1}组数量格式错误: ${countStr}`);
+                                continue;
+                            }
+                        }
+                        if (serverId || roleId) {
+                            currentGroupItems.push({ itemId, itemCount });
+                        } else {
+                            currentGroupItems = [{ itemId, itemCount }];
+                            pushGroup();
+                        }
+                    }
+                    if (currentGroupItems.length > 0 || (serverId || roleId)) {
+                        pushGroup();
+                    }
 
-                    // 显示结果
                     if (AppState.allGroupResults.length > 0) {
-                        // 保存原始数据用于过滤
                         AppState.originalGroupResults = [...AppState.allGroupResults];
                         AppState.originalItemTexts = [...AppState.allItemTexts];
-                        
-                        // 如果不是恢复历史记录，则保存到历史记录
                         if (!AppState.isRestoringHistory) {
                             this.saveToHistory(input);
                         }
-                        
-                        // 渲染结果
                         this.renderResults();
-                        
-                        // 显示固定按钮容器
                         DOM.fixedButtonContainer.classList.remove('hidden');
-                        
-                        // 隐藏空状态
                         DOM.emptyState.style.display = 'none';
                     }
                 } catch (e) {
@@ -1867,40 +1974,137 @@ server id   role id   sdk open id
              * 渲染结果到表格或虚拟滚动
              */
             renderResults() {
-                // 根据数据量决定使用哪种渲染方式
                 const totalItems = AppState.allGroupResults.length;
-                
-                if (totalItems > 50) {
-                    // 大型数据集 - 使用虚拟滚动
-                    DOM.outputTable.style.display = 'none';
-                    DOM.virtualScrollContainer.style.display = 'block';
-                    
-                    // 初始化虚拟滚动
-                    AppState.virtualScroll.totalRows = totalItems;
-                    this.initVirtualScroll();
-                } else {
-                    // 小型数据集 - 使用表格
-                    DOM.outputTable.style.display = 'table';
-                    DOM.virtualScrollContainer.style.display = 'none';
-                    
-                    DOM.outputTableBody.innerHTML = '';
-                    
-                    AppState.allGroupResults.forEach((groupData, groupIndex) => {
-                        const itemText = Utils.convertJsonToExcelText(groupData.items);
-                        this.addResultToTable(groupData, itemText, groupIndex);
-                    });
+                DOM.virtualScrollContainer.style.display = 'none';
+                DOM.outputTable.style.display = totalItems > 0 ? 'table' : 'none';
+                DOM.outputTableBody.innerHTML = '';
+                // 分页配置
+                if (!AppState.pagination) {
+                    AppState.pagination = { pageSize: 50, currentPage: 1, totalPages: 1 };
                 }
-                
-                // 如果没有结果，显示空状态
-                if (AppState.allGroupResults.length === 0) {
-                    DOM.outputTable.style.display = 'none';
-                    DOM.virtualScrollContainer.style.display = 'none';
-                    DOM.emptyState.style.display = 'block';
-                    DOM.emptyState.innerHTML = `
-                        <i class="fas fa-search"></i>
-                        <h3>未找到匹配结果</h3>
-                        <p>请尝试其他搜索关键词</p>
-                    `;
+                AppState.pagination.totalPages = Math.max(1, Math.ceil(totalItems / AppState.pagination.pageSize));
+                AppState.pagination.currentPage = Math.min(AppState.pagination.currentPage, AppState.pagination.totalPages);
+                const start = (AppState.pagination.currentPage - 1) * AppState.pagination.pageSize;
+                const end = Math.min(totalItems, start + AppState.pagination.pageSize);
+                for (let i = start; i < end; i++) {
+                    const groupData = AppState.allGroupResults[i];
+                    const itemText = Utils.convertJsonToExcelText(groupData.items);
+                    this.addResultToTable(groupData, itemText, i);
+                }
+                this.renderPaginationControls(totalItems);
+            },
+            renderPaginationControls(totalItems) {
+                let controls = document.getElementById('paginationControls');
+                if (!controls) {
+                    controls = document.createElement('div');
+                    controls.id = 'paginationControls';
+                    controls.className = 'pagination-controls';
+                    DOM.resultsContainer = document.getElementById('resultsContainer');
+                    DOM.resultsContainer.appendChild(controls);
+                }
+                const p = AppState.pagination;
+                controls.innerHTML = '';
+                if (totalItems <= p.pageSize) { controls.style.display = 'none'; return; }
+                controls.style.display = 'flex';
+                const info = document.createElement('span');
+                info.textContent = `共 ${totalItems} 条，页数 ${p.currentPage}/${p.totalPages}`;
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'btn-page'; prevBtn.textContent = '上一页'; prevBtn.disabled = p.currentPage <= 1;
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'btn-page'; nextBtn.textContent = '下一页'; nextBtn.disabled = p.currentPage >= p.totalPages;
+                const gotoInput = document.createElement('input');
+                gotoInput.type = 'number'; gotoInput.min = 1; gotoInput.max = p.totalPages; gotoInput.value = p.currentPage;
+                const gotoBtn = document.createElement('button'); gotoBtn.className = 'btn-page'; gotoBtn.textContent = '跳转';
+                prevBtn.addEventListener('click', () => { if (p.currentPage > 1) { p.currentPage--; ItemConverter.renderResults(); } });
+                nextBtn.addEventListener('click', () => { if (p.currentPage < p.totalPages) { p.currentPage++; ItemConverter.renderResults(); } });
+                gotoBtn.addEventListener('click', () => { let v = parseInt(gotoInput.value, 10); if (isNaN(v)) return; v = Math.max(1, Math.min(p.totalPages, v)); p.currentPage = v; ItemConverter.renderResults(); });
+                controls.appendChild(info);
+                controls.appendChild(prevBtn);
+                controls.appendChild(nextBtn);
+                controls.appendChild(gotoInput);
+                controls.appendChild(gotoBtn);
+            },
+            initVirtualScroll() {
+                const v = AppState.virtualScroll;
+                v.container = DOM.virtualScrollContainer;
+                v.content = DOM.virtualScrollContent;
+                v.rowHeight = v.rowHeight || 60;
+                v.container.style.maxHeight = '600px';
+                v.container.style.overflowY = 'auto';
+                v.content.style.position = 'relative';
+                v.content.innerHTML = '';
+                v.content.style.height = (v.totalRows * v.rowHeight) + 'px';
+                v.visibleRows = Math.max(10, Math.floor(v.container.clientHeight / v.rowHeight) || 10);
+                v.startIndex = 0;
+                v.endIndex = Math.min(v.totalRows, v.visibleRows + 5);
+                let viewport = document.getElementById('vs-viewport');
+                if (!viewport) {
+                    viewport = document.createElement('div');
+                    viewport.id = 'vs-viewport';
+                    viewport.style.position = 'absolute';
+                    viewport.style.left = '0';
+                    viewport.style.right = '0';
+                    v.content.appendChild(viewport);
+                }
+                const onScroll = () => {
+                    const top = v.container.scrollTop;
+                    v.startIndex = Math.max(0, Math.floor(top / v.rowHeight));
+                    v.endIndex = Math.min(v.totalRows, v.startIndex + v.visibleRows + 5);
+                    ItemConverter.renderVirtualRows(viewport);
+                };
+                v.container.removeEventListener('scroll', v._scrollHandler || function(){});
+                v._scrollHandler = onScroll;
+                v.container.addEventListener('scroll', onScroll);
+                ItemConverter.renderVirtualRows(viewport);
+            },
+            renderVirtualRows(viewport) {
+                const v = AppState.virtualScroll;
+                viewport.style.transform = 'translateY(' + (v.startIndex * v.rowHeight) + 'px)';
+                viewport.innerHTML = '';
+                for (let i = v.startIndex; i < v.endIndex; i++) {
+                    const groupData = AppState.allGroupResults[i];
+                    const itemText = Utils.convertJsonToExcelText(groupData.items);
+                    const row = document.createElement('div');
+                    row.className = 'vs-row';
+                    row.style.display = 'grid';
+                    row.style.gridTemplateColumns = '60px 100px 100px 1fr 1fr 160px';
+                    row.style.alignItems = 'center';
+                    row.style.padding = '8px 12px';
+                    row.style.borderBottom = '1px solid var(--border-color)';
+                    row.style.height = v.rowHeight + 'px';
+                    const badge = document.createElement('div');
+                    badge.innerHTML = '<div class="group-badge">' + (groupData.originalIndex + 1) + '</div>';
+                    const server = document.createElement('div');
+                    server.className = 'server-cell';
+                    server.textContent = groupData.serverId || 'N/A';
+                    const role = document.createElement('div');
+                    role.className = 'role-cell';
+                    role.textContent = groupData.roleId || 'N/A';
+                    const json = document.createElement('div');
+                    json.className = 'json-cell';
+                    json.textContent = JSON.stringify(groupData.items);
+                    const text = document.createElement('div');
+                    text.className = 'item-text-cell';
+                    text.textContent = itemText;
+                    const actions = document.createElement('div');
+                    actions.className = 'action-btn-group';
+                    const btnJson = document.createElement('button');
+                    btnJson.className = 'copy-btn copy-json-btn';
+                    btnJson.innerHTML = '<i class="fas fa-copy"></i> 复制JSON';
+                    btnJson.addEventListener('click', function(){ Utils.copyToClipboard(JSON.stringify(groupData.items), btnJson); });
+                    const btnText = document.createElement('button');
+                    btnText.className = 'copy-btn copy-text-btn';
+                    btnText.innerHTML = '<i class="fas fa-file-excel"></i> 复制文本';
+                    btnText.addEventListener('click', function(){ Utils.copyToClipboard(itemText, btnText); });
+                    actions.appendChild(btnJson);
+                    actions.appendChild(btnText);
+                    row.appendChild(badge);
+                    row.appendChild(server);
+                    row.appendChild(role);
+                    row.appendChild(json);
+                    row.appendChild(text);
+                    row.appendChild(actions);
+                    viewport.appendChild(row);
                 }
             },
             
@@ -1974,123 +2178,6 @@ server id   role id   sdk open id
                 row.appendChild(actionCell);
                 DOM.outputTableBody.appendChild(row);
             },
-            
-            /**
-             * 初始化虚拟滚动
-             */
-            initVirtualScroll() {
-                const container = DOM.virtualScrollContainer;
-                const content = DOM.virtualScrollContent;
-                
-                // 计算可见行数
-                AppState.virtualScroll.container = container;
-                AppState.virtualScroll.content = content;
-                AppState.virtualScroll.visibleRows = Math.ceil(container.clientHeight / AppState.virtualScroll.rowHeight);
-                AppState.virtualScroll.startIndex = 0;
-                AppState.virtualScroll.endIndex = Math.min(
-                    AppState.virtualScroll.startIndex + AppState.virtualScroll.visibleRows,
-                    AppState.virtualScroll.totalRows
-                );
-                
-                // 设置内容高度
-                content.style.height = `${AppState.virtualScroll.totalRows * AppState.virtualScroll.rowHeight}px`;
-                
-                // 渲染初始可见行
-                this.renderVirtualRows();
-                
-                // 添加滚动事件监听
-                container.addEventListener('scroll', () => this.handleVirtualScroll());
-            },
-            
-            /**
-             * 处理虚拟滚动
-             */
-            handleVirtualScroll() {
-                const container = AppState.virtualScroll.container;
-                const scrollTop = container.scrollTop;
-                
-                // 计算新的起始索引
-                const newStartIndex = Math.floor(scrollTop / AppState.virtualScroll.rowHeight);
-                const newEndIndex = Math.min(
-                    newStartIndex + AppState.virtualScroll.visibleRows,
-                    AppState.virtualScroll.totalRows
-                );
-                
-                // 如果索引范围没有变化，不需要重新渲染
-                if (
-                    newStartIndex === AppState.virtualScroll.startIndex &&
-                    newEndIndex === AppState.virtualScroll.endIndex
-                ) {
-                    return;
-                }
-                
-                // 更新索引
-                AppState.virtualScroll.startIndex = newStartIndex;
-                AppState.virtualScroll.endIndex = newEndIndex;
-                
-                // 渲染新的可见行
-                this.renderVirtualRows();
-            },
-            
-            /**
-             * 渲染虚拟行 - 修复错行问题
-             */
-            renderVirtualRows() {
-                const content = AppState.virtualScroll.content;
-                const startIndex = AppState.virtualScroll.startIndex;
-                const endIndex = AppState.virtualScroll.endIndex;
-                const rowHeight = AppState.virtualScroll.rowHeight;
-                
-                // 清空内容
-                content.innerHTML = '';
-                
-                // 渲染可见行
-                for (let i = startIndex; i < endIndex; i++) {
-                    const groupData = AppState.allGroupResults[i];
-                    const itemText = Utils.convertJsonToExcelText(groupData.items);
-                    
-                    const row = document.createElement('div');
-                    row.className = 'virtual-row';
-                    row.style.height = `${rowHeight}px`;
-                    row.style.top = `${i * rowHeight}px`;
-                    
-                    // 添加行内容 - 使用固定高度的容器
-                    row.innerHTML = `
-                        <div class="virtual-row-content">
-                            <div class="group-cell">
-                                <div class="group-badge">${i + 1}</div>
-                            </div>
-                            <div class="server-cell">${groupData.serverId || 'N/A'}</div>
-                            <div class="role-cell">${groupData.roleId || 'N/A'}</div>
-                            <div class="json-cell">${JSON.stringify(groupData.items)}</div>
-                            <div class="item-text-cell">${itemText}</div>
-                            <div class="action-cell">
-                                <div class="action-btn-group">
-                                    <button class="copy-btn copy-json-btn">
-                                        <i class="fas fa-copy"></i> 复制JSON
-                                    </button>
-                                    <button class="copy-btn copy-text-btn">
-                                        <i class="fas fa-file-excel"></i> 复制文本
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    
-                    // 添加事件监听
-                    const copyJsonBtn = row.querySelector('.copy-json-btn');
-                    copyJsonBtn.addEventListener('click', () => {
-                        Utils.copyToClipboard(JSON.stringify(groupData.items), copyJsonBtn);
-                    });
-                    
-                    const copyTextBtn = row.querySelector('.copy-text-btn');
-                    copyTextBtn.addEventListener('click', () => {
-                        Utils.copyToClipboard(itemText, copyTextBtn);
-                    });
-                    
-                    content.appendChild(row);
-                }
-            },
 
             /**
              * 清空所有输入和结果
@@ -2116,11 +2203,24 @@ server id   role id   sdk open id
              * 加载示例数据
              */
             loadExampleData() {
-                const exampleData = `341008*1
+                const exampleData = `[1001,20001]
+341008*1
+360260*1
+360145*1
 360002*50w
+360522*10
 
-"341043 *1
-369012 *1"
+[1002,20002]
+341008*1
+360260*1
+360145*1
+360002*50w
+360522*10
+            
+[1003,20003]
+341008*1
+360260*1
+360145*1
 
 [1004,20004]
 360002*100w
@@ -2363,6 +2463,18 @@ server id   role id   sdk open id
                 
                 // 重新渲染
                 this.renderResults();
+                
+                // 如果没有结果，显示空状态
+                if (AppState.allGroupResults.length === 0) {
+                    DOM.outputTable.style.display = 'none';
+                    DOM.virtualScrollContainer.style.display = 'none';
+                    DOM.emptyState.style.display = 'block';
+                    DOM.emptyState.innerHTML = `
+                        <i class="fas fa-search"></i>
+                        <h3>未找到匹配结果</h3>
+                        <p>请尝试其他搜索关键词</p>
+                    `;
+                }
             }
         };
 
@@ -2588,9 +2700,9 @@ server id   role id   sdk open id
                     
                     serverCard.innerHTML = `
                         <div class="server-card-header">
-                            <div class="server-id">服务器: ${serverId}</div>
-                            <button class="copy-server-btn btn btn-sm btn-secondary">
-                                <i class="fas fa-copy"></i> 复制
+                            <div class="server-id" title="点击复制服务器ID">服务器: ${serverId}</div>
+                            <button class="copy-server-btn btn btn-sm btn-secondary" title="复制该服务器的所有角色ID">
+                                <i class="fas fa-copy"></i> 复制角色ID
                             </button>
                         </div>
                         <div class="server-card-body">
@@ -2611,6 +2723,13 @@ server id   role id   sdk open id
                     copyBtn.addEventListener('click', () => {
                         const roleIds = roles.map(r => r.roleId).join(',');
                         Utils.copyToClipboard(roleIds, copyBtn);
+                    });
+                    const serverIdDiv = serverCard.querySelector('.server-id');
+                    serverIdDiv.addEventListener('click', () => {
+                        const idNum = String(serverId).replace(/\D/g, '');
+                        Utils.copyToClipboard(idNum);
+                        serverIdDiv.classList.add('copied');
+                        setTimeout(() => { serverIdDiv.classList.remove('copied'); }, 1600);
                     });
                     
                     DOM.serverCardsContainer.appendChild(serverCard);
@@ -2672,6 +2791,11 @@ server id   role id   sdk open id
             loadMailExample() {
                 const exampleData = `server id   role id   sdk open id
 1001        20001     8881001
+1001        20002     8881002
+1002        30001     8882001
+1003        40001     8883001
+1003        40002     8883002
+1004        50001     
 1004        50002     `;
                 
                 DOM.mailInputTextarea.value = exampleData;
@@ -2710,18 +2834,18 @@ server id   role id   sdk open id
                 
                 // 定义多文言环境的URL模板
                 const urlTemplates = [
-                    { name: "沙盒环境", lang: "sandbox", url: `https://oasis-act-my.byteintl.net/?language=en-US&news-id=${newsId}` },
-                    { name: "繁体中文", lang: "zh-TW", url: `https://coatw.com/?news-id=${newsId}` },
-                    { name: "英文", lang: "en", url: `https://coa.nvsgames.com/?news-id=${newsId}` },
-                    { name: "泰文", lang: "th", url: `https://coa.nvsgames.com/th-TH?news-id=${newsId}` },
+                    { name: "越南", lang: "vi", url: `https://www.coaaction.vn/?news-id=${newsId}` },
+                    { name: "台湾", lang: "zh-TW", url: `https://coatw.com/?news-id=${newsId}` },
+                    { name: "国际(英文)", lang: "en", url: `https://coa.nvsgames.com/?news-id=${newsId}` },
                     { name: "日文", lang: "ja", url: `https://coa.nvsgames.com/ja-JP?news-id=${newsId}` },
-                    { name: "韩文", lang: "ko", url: `https://coa.nvsgames.com/ko_KR?news-id=${newsId}` },
                     { name: "德文", lang: "de", url: `https://coa.nvsgames.com/de_DE?news-id=${newsId}` },
                     { name: "法文", lang: "fr", url: `https://coa.nvsgames.com/fr-FR?news-id=${newsId}` },
+                    { name: "韩文", lang: "ko", url: `https://coa.nvsgames.com/ko_KR?news-id=${newsId}` },
                     { name: "葡语", lang: "pt-BR", url: `https://coa.nvsgames.com/pt-BR?news-id=${newsId}` },
                     { name: "西语", lang: "es-AR", url: `https://coa.nvsgames.com/es-AR?news-id=${newsId}` },
+                    { name: "泰文", lang: "th", url: `https://coa.nvsgames.com/th-TH?news-id=${newsId}` },
                     { name: "印度尼西亚", lang: "id", url: `https://coa.nvsgames.com/id-ID?news-id=${newsId}` },
-                    { name: "越南", lang: "vi", url: `https://www.coaaction.vn/?news-id=${newsId}` },
+                    { name: "沙盒环境", lang: "sandbox", url: `https://oasis-act-my.byteintl.net/?language=en-US&news-id=${newsId}` }
                 ];
                 
                 // 保存链接
@@ -2843,14 +2967,32 @@ server id   role id   sdk open id
                     DOM.itemConverterContainer.style.display = 'block';
                     DOM.mailTemplateContainer.style.display = 'none';
                     DOM.newsGeneratorContainer.style.display = 'none';
+                    DOM.excelCsvContainer.style.display = 'none';
+                    DOM.multilingualDisplayContainer.style.display = 'none';
                 } else if (tabName === 'mail-template') {
                     DOM.itemConverterContainer.style.display = 'none';
                     DOM.mailTemplateContainer.style.display = 'block';
                     DOM.newsGeneratorContainer.style.display = 'none';
+                    DOM.excelCsvContainer.style.display = 'none';
+                    DOM.multilingualDisplayContainer.style.display = 'none';
                 } else if (tabName === 'news-generator') {
                     DOM.itemConverterContainer.style.display = 'none';
                     DOM.mailTemplateContainer.style.display = 'none';
                     DOM.newsGeneratorContainer.style.display = 'block';
+                    DOM.excelCsvContainer.style.display = 'none';
+                    DOM.multilingualDisplayContainer.style.display = 'none';
+                } else if (tabName === 'excel-csv') {
+                    DOM.itemConverterContainer.style.display = 'none';
+                    DOM.mailTemplateContainer.style.display = 'none';
+                    DOM.newsGeneratorContainer.style.display = 'none';
+                    DOM.excelCsvContainer.style.display = 'block';
+                    DOM.multilingualDisplayContainer.style.display = 'none';
+                } else if (tabName === 'multilingual-display') {
+                    DOM.itemConverterContainer.style.display = 'none';
+                    DOM.mailTemplateContainer.style.display = 'none';
+                    DOM.newsGeneratorContainer.style.display = 'none';
+                    DOM.excelCsvContainer.style.display = 'none';
+                    DOM.multilingualDisplayContainer.style.display = 'block';
                 }
             }
         };
@@ -2926,6 +3068,81 @@ server id   role id   sdk open id
 
         // 启动应用
         document.addEventListener('DOMContentLoaded', initApp);
+        (function(){
+            var container = document.querySelector('.tabs-container');
+            function getOrder(){ try { return JSON.parse(localStorage.getItem('tabsOrder')||'[]'); } catch(e){ return []; } }
+            function saveOrder(){ var names = Array.from(container.querySelectorAll('.tab')).map(function(t){ return t.dataset.tab; }); localStorage.setItem('tabsOrder', JSON.stringify(names)); }
+            function applyOrder(){ var order = getOrder(); if (!order.length) return; var tabs = Array.from(container.querySelectorAll('.tab')); order.forEach(function(name){ var tab = tabs.find(function(t){ return t.dataset.tab === name; }); if (tab) container.appendChild(tab); }); }
+            var dragged = null;
+            function dragStart(e){ dragged = e.currentTarget; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', dragged.dataset.tab); } catch(_) {} dragged.classList.add('dragging'); }
+            function dragOver(e){ e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+            function drop(e){ e.preventDefault(); var target = e.currentTarget; if (!dragged || target === dragged) return; var rect = target.getBoundingClientRect(); var before = (e.clientX - rect.left) < rect.width/2; if (before) container.insertBefore(dragged, target); else container.insertBefore(dragged, target.nextSibling); saveOrder(); }
+            function dragEnd(){ if (dragged) dragged.classList.remove('dragging'); dragged = null; }
+            function init(){ applyOrder(); Array.from(container.querySelectorAll('.tab')).forEach(function(tab){ tab.setAttribute('draggable','true'); tab.addEventListener('dragstart', dragStart); tab.addEventListener('dragover', dragOver); tab.addEventListener('drop', drop); tab.addEventListener('dragend', dragEnd); }); }
+            document.addEventListener('DOMContentLoaded', init);
+        })();
+        (function(){
+            var uploadArea = document.getElementById('upload-area');
+            var selectFileBtn = document.getElementById('select-file-btn');
+            var fileInput = document.getElementById('file-input');
+            var exportBtn = document.getElementById('export-btn');
+            var status = document.getElementById('status');
+            var result = document.getElementById('result');
+            var fileList = document.getElementById('file-list');
+            var includeHeaderCheckbox = document.getElementById('include-header');
+            var customNameInput = document.getElementById('custom-name');
+            var languageSelection = document.getElementById('language-selection');
+            var languageList = document.getElementById('language-list');
+            var progressContainer = document.getElementById('progress-container');
+            var progressBar = document.getElementById('progress-bar');
+            var selectAllBtn = document.getElementById('select-all-btn');
+            var downloadAllBtn = document.getElementById('download-all-btn');
+            var fileInfo = document.getElementById('file-info');
+            var mergeSection = document.getElementById('merge-section');
+            var mergeLanguagesCheckbox = document.getElementById('merge-languages');
+            var mergeDetails = document.getElementById('merge-details');
+            var mergedFilenameInput = document.getElementById('merged-filename');
+            var duplicateOptions = document.getElementById('duplicate-options');
+            var selectedFile = null;
+            var languageData = {};
+            var isExporting = false;
+            var allLanguagesSelected = true;
+            var csvFiles = [];
+            var hasDuplicates = false;
+            function updateUI(){ if (selectedFile) { exportBtn.disabled = false; status.textContent = '已选择文件: ' + selectedFile.name; status.className = 'status success'; fileInfo.innerHTML = '<span>已选择: ' + selectedFile.name + '</span>'; } else { exportBtn.disabled = true; status.textContent = ''; status.className = 'status'; result.style.display = 'none'; fileList.innerHTML = ''; languageSelection.style.display = 'none'; languageList.innerHTML = ''; languageData = {}; fileInfo.innerHTML = '<span>支持 .xlsx 和 .xls 格式</span>'; mergeSection.style.display = 'none'; mergeDetails.style.display = 'none'; mergeLanguagesCheckbox.checked = false; duplicateOptions.style.display = 'none'; hasDuplicates = false; } }
+            function parseExcelForLanguages(){ if (!selectedFile) return; status.textContent = '正在解析文件...'; status.className = 'status processing'; var reader = new FileReader(); reader.onload = function(e){ try { var data = new Uint8Array(e.target.result); var workbook = XLSX.read(data, { type: 'array' }); var firstSheetName = workbook.SheetNames[0]; var worksheet = workbook.Sheets[firstSheetName]; var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }); if (jsonData.length === 0) { showError('Excel文件中没有数据'); return; } var headers = jsonData[0]; var dataRows = jsonData.slice(1); var deviceIdIndex = headers.findIndex(function(header){ return header && header.toString().toLowerCase().includes('device'); }); var languageIndex = headers.findIndex(function(header){ return header && header.toString().toLowerCase().includes('language'); }); if (deviceIdIndex === -1) { showError('Excel文件中未找到设备ID列'); return; } if (languageIndex === -1) { showError('Excel文件中未找到语言列'); return; } languageData = {}; dataRows.forEach(function(row){ var language = (row[languageIndex] || '未知语言').toString(); var deviceId = (row[deviceIdIndex] || '').toString(); if (!languageData[language]) { languageData[language] = []; } languageData[language].push([deviceId]); }); updateLanguageDisplay(); languageSelection.style.display = 'block'; mergeSection.style.display = 'block'; status.textContent = '已选择文件: ' + selectedFile.name + '，检测到 ' + Object.keys(languageData).length + ' 种语言'; status.className = 'status success'; checkForDuplicates(); } catch (error) { showError('解析文件时出错: ' + error.message); } }; reader.onerror = function(){ showError('读取文件时出错'); }; reader.readAsArrayBuffer(selectedFile); }
+            function checkForDuplicates(){ if (!selectedFile || !mergeLanguagesCheckbox.checked) { duplicateOptions.style.display = 'none'; hasDuplicates = false; return; } var selectedLanguages = []; Object.keys(languageData).forEach(function(language){ var checkbox = document.getElementById('lang-' + language); if (checkbox && checkbox.checked) { selectedLanguages.push(language); } }); if (selectedLanguages.length < 2) { duplicateOptions.style.display = 'none'; hasDuplicates = false; return; } var allDeviceIds = new Set(); var duplicatesFound = false; for (var i=0;i<selectedLanguages.length;i++){ var language = selectedLanguages[i]; var arr = languageData[language]; for (var j=0;j<arr.length;j++){ var deviceId = arr[j][0]; if (allDeviceIds.has(deviceId)) { duplicatesFound = true; break; } allDeviceIds.add(deviceId); } if (duplicatesFound) break; } if (duplicatesFound) { duplicateOptions.style.display = 'block'; hasDuplicates = true; } else { duplicateOptions.style.display = 'none'; hasDuplicates = false; } }
+            function updateLanguageDisplay(){ languageList.innerHTML = ''; Object.keys(languageData).forEach(function(language){ var languageItem = document.createElement('div'); languageItem.className = 'language-item'; languageItem.innerHTML = '<input type="checkbox" id="lang-' + language + '" checked><label for="lang-' + language + '">' + language + ' (' + languageData[language].length + '条数据)</label>'; languageList.appendChild(languageItem); }); allLanguagesSelected = true; selectAllBtn.innerHTML = '<i class="fas fa-check-square"></i> 全选'; updateMergeOptionVisibility(); }
+            function updateMergeOptionVisibility(){ var checkboxes = languageList.querySelectorAll('input[type="checkbox"]'); var checkedCount = Array.prototype.slice.call(checkboxes).filter(function(cb){ return cb.checked; }).length; if (checkedCount >= 2) { mergeDetails.style.display = mergeLanguagesCheckbox.checked ? 'block' : 'none'; } else { mergeDetails.style.display = 'none'; mergeLanguagesCheckbox.checked = false; } checkForDuplicates(); }
+            function toggleMergeDetails(){ if (mergeLanguagesCheckbox.checked) { var checkboxes = languageList.querySelectorAll('input[type="checkbox"]'); var checkedCount = Array.prototype.slice.call(checkboxes).filter(function(cb){ return cb.checked; }).length; if (checkedCount >= 2) { mergeDetails.style.display = 'block'; checkForDuplicates(); } else { mergeLanguagesCheckbox.checked = false; alert('请至少选择两种语言进行合并'); } } else { mergeDetails.style.display = 'none'; duplicateOptions.style.display = 'none'; } }
+            function toggleSelectAll(){ var checkboxes = languageList.querySelectorAll('input[type="checkbox"]'); Array.prototype.forEach.call(checkboxes, function(checkbox){ checkbox.checked = !allLanguagesSelected; }); allLanguagesSelected = !allLanguagesSelected; if (allLanguagesSelected) { selectAllBtn.innerHTML = '<i class="fas fa-check-square"></i> 全选'; } else { selectAllBtn.innerHTML = '<i class="fas fa-square"></i> 取消全选'; } updateMergeOptionVisibility(); }
+            function convertToCsv(data, includeHeader){ if (!includeHeader && data.length > 0) { data = data.slice(1); } return data.map(function(row){ return row.map(function(cell){ if (cell === undefined || cell === null) { return ''; } return cell.toString(); }).join(','); }).join('\n'); }
+            function downloadCsv(content, fileName){ var blob = new Blob([content], { type: 'text/csv;charset=utf-8;' }); var url = URL.createObjectURL(blob); var link = document.createElement('a'); link.href = url; link.setAttribute('download', fileName); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
+            function showSuccess(message){ status.textContent = message; status.className = 'status success'; }
+            function showError(message){ status.textContent = message; status.className = 'status error'; }
+            function resetExportState(){ isExporting = false; exportBtn.disabled = false; progressContainer.style.display = 'none'; }
+            async function exportToCsv(){ if (!selectedFile || isExporting) return; isExporting = true; exportBtn.disabled = true; status.textContent = '正在导出CSV文件...'; status.className = 'status processing'; progressContainer.style.display = 'block'; progressBar.style.width = '0%'; result.style.display = 'none'; fileList.innerHTML = ''; csvFiles = []; await new Promise(function(resolve){ setTimeout(resolve, 100); }); try { var includeHeader = includeHeaderCheckbox.checked; var customName = (customNameInput.value.trim() || '导出数据'); var mergeLanguages = mergeLanguagesCheckbox.checked; var mergedFilename = (mergedFilenameInput.value.trim() || (customName + '_合并')); var headerRow = includeHeader ? [['did']] : []; var selectedLanguages = []; Object.keys(languageData).forEach(function(language){ var checkbox = document.getElementById('lang-' + language); if (checkbox && checkbox.checked) { selectedLanguages.push(language); } }); if (selectedLanguages.length === 0) { showError('请至少选择一种语言'); resetExportState(); return; } if (mergeLanguages && selectedLanguages.length > 1) { var mergedData = []; var seenDeviceIds = new Set(); var removeDuplicates = document.getElementById('remove-duplicates').checked; selectedLanguages.forEach(function(language){ languageData[language].forEach(function(item){ var deviceId = item[0] || ''; if (removeDuplicates) { if (!seenDeviceIds.has(deviceId)) { mergedData.push([deviceId]); seenDeviceIds.add(deviceId); } } else { mergedData.push([deviceId]); } }); }); var csvContent = convertToCsv([].concat(headerRow, mergedData), includeHeader); var fileName = mergedFilename + '.csv'; csvFiles.push({ content: csvContent, name: fileName, isMerged: true }); var fileItem = document.createElement('li'); fileItem.className = 'file-item'; fileItem.innerHTML = '<span>' + fileName + ' (合并' + selectedLanguages.length + '种语言)</span><a href="#" data-filename="' + fileName + '"><i class="fas fa-download"></i> 下载</a>'; fileList.appendChild(fileItem); progressBar.style.width = '100%'; } else { var processedCount = 0; for (var i=0;i<selectedLanguages.length;i++){ var language = selectedLanguages[i]; var data = languageData[language]; var csvContent = convertToCsv([].concat(headerRow, data), includeHeader); var fileName = customName + '_' + language + '.csv'; csvFiles.push({ content: csvContent, name: fileName, isMerged: false }); var fileItem = document.createElement('li'); fileItem.className = 'file-item'; fileItem.innerHTML = '<span>' + fileName + '</span><a href="#" data-filename="' + fileName + '"><i class="fas fa-download"></i> 下载</a>'; fileList.appendChild(fileItem); processedCount++; var progress = Math.round((processedCount / selectedLanguages.length) * 100); progressBar.style.width = progress + '%'; await new Promise(function(resolve){ setTimeout(resolve, 50); }); } } fileList.querySelectorAll('a').forEach(function(link){ link.addEventListener('click', function(e){ e.preventDefault(); var fileName = link.getAttribute('data-filename'); var file = csvFiles.find(function(f){ return f.name === fileName; }); if (file) { downloadCsv(file.content, file.name); } }); }); result.style.display = 'block'; showSuccess('已成功导出 ' + csvFiles.length + ' 个CSV文件'); } catch (error) { showError('导出文件时出错: ' + error.message); } finally { resetExportState(); } }
+            function init(){ selectFileBtn.addEventListener('click', function(){ fileInput.click(); }); fileInput.addEventListener('change', function(e){ if (e.target.files.length > 0) { selectedFile = e.target.files[0]; updateUI(); parseExcelForLanguages(); } }); uploadArea.addEventListener('dragover', function(e){ e.preventDefault(); uploadArea.classList.add('active'); }); uploadArea.addEventListener('dragleave', function(){ uploadArea.classList.remove('active'); }); uploadArea.addEventListener('drop', function(e){ e.preventDefault(); uploadArea.classList.remove('active'); if (e.dataTransfer.files.length > 0) { selectedFile = e.dataTransfer.files[0]; updateUI(); parseExcelForLanguages(); } }); exportBtn.addEventListener('click', exportToCsv); selectAllBtn.addEventListener('click', toggleSelectAll); downloadAllBtn.addEventListener('click', async function(){ if (csvFiles.length === 0) return; for (var i=0;i<csvFiles.length;i++){ var file = csvFiles[i]; downloadCsv(file.content, file.name); await new Promise(function(resolve){ setTimeout(resolve, 100); }); } showSuccess('所有文件已开始下载'); }); mergeLanguagesCheckbox.addEventListener('change', toggleMergeDetails); languageList.addEventListener('change', function(){ updateMergeOptionVisibility(); checkForDuplicates(); }); }
+            document.addEventListener('DOMContentLoaded', init);
+        })();
+        (function(){
+            var multilingualData = [];
+            var languageCodeToName = { 1: "简体中文", 2: "繁体中文", 3: "英语", 4: "日语", 5: "泰语", 6: "阿拉伯语", 7: "韩语", 8: "印尼语", 9: "西班牙语", 10: "葡萄牙语", 11: "越南语", 12: "俄语", 13: "土耳其语", 14: "德语", 15: "法语", 16: "意大利语", 17: "荷兰语", 18: "波兰语", 19: "印地语", 20: "马来语", 21: "菲律宾语" };
+            var languageNameToCode = {};
+            for (var code in languageCodeToName) { languageNameToCode[languageCodeToName[code]] = parseInt(code); }
+            function initLanguageSelector(){ var selector = document.getElementById('languageSelector'); selector.innerHTML = ''; if (multilingualData.length === 0) { selector.innerHTML = '<div style="padding: 10px; color: var(--text-secondary); text-align: center;">暂无语言内容，请先添加内容</div>'; return; } multilingualData.forEach(function(item){ var button = document.createElement('button'); button.className = 'language-btn'; button.textContent = languageCodeToName[item.language] || ('语言 ' + item.language); button.setAttribute('data-language', item.language); button.addEventListener('click', function(){ document.querySelectorAll('.language-btn').forEach(function(btn){ btn.classList.remove('active'); }); button.classList.add('active'); displayContent(item); }); selector.appendChild(button); }); }
+            function displayContent(item){ document.getElementById('contentTitle').textContent = item.title; document.getElementById('contentBody').textContent = item.content; }
+            function updateJsonOutput(){ var jsonOutput = document.getElementById('jsonOutput'); var filteredData = multilingualData.filter(function(item){ return item.title && item.title.trim() !== '' && item.content && item.content.trim() !== ''; }); if (filteredData.length === 0) { jsonOutput.textContent = '没有可用的语言数据，请添加内容后再试。'; } else { jsonOutput.textContent = JSON.stringify(filteredData, null, 2); } }
+            function addNewContent(){ var languageCode = parseInt(document.getElementById('languageCode').value); var title = document.getElementById('title').value.trim(); var content = document.getElementById('content').value.trim(); if (!title || !content) { alert('请输入标题和内容'); return; } var existingIndex = multilingualData.findIndex(function(item){ return item.language === languageCode; }); if (existingIndex !== -1) { multilingualData[existingIndex] = { language: languageCode, title: title, content: content }; } else { multilingualData.push({ language: languageCode, title: title, content: content }); multilingualData.sort(function(a,b){ return a.language - b.language; }); } initLanguageSelector(); updateJsonOutput(); var successMessage = document.getElementById('successMessage'); successMessage.style.display = 'block'; setTimeout(function(){ successMessage.style.display = 'none'; }, 2000); var newButton = document.querySelector('.language-btn[data-language="' + languageCode + '"]'); if (newButton) { newButton.click(); } }
+            function handleFileUpload(event){ var file = event.target.files[0]; if (!file) return; var reader = new FileReader(); reader.onload = function(e){ var data = new Uint8Array(e.target.result); var workbook = XLSX.read(data, { type: 'array' }); var firstSheet = workbook.Sheets[workbook.SheetNames[0]]; var jsonData = XLSX.utils.sheet_to_json(firstSheet); processImportedData(jsonData); }; reader.readAsArrayBuffer(file); }
+            function processImportedData(data){ var importCount = 0; data.forEach(function(item){ var languageCode; if (typeof item.language === 'number') { languageCode = item.language; } else if (typeof item.language === 'string') { languageCode = languageNameToCode[item.language]; } var title = item.title; var content = item.content; if (languageCode && title && content) { var existingIndex = multilingualData.findIndex(function(dataItem){ return dataItem.language === languageCode; }); if (existingIndex !== -1) { multilingualData[existingIndex] = { language: languageCode, title: title, content: content }; } else { multilingualData.push({ language: languageCode, title: title, content: content }); } importCount++; } }); multilingualData.sort(function(a,b){ return a.language - b.language; }); initLanguageSelector(); updateJsonOutput(); var importMessage = document.getElementById('importMessage'); importMessage.textContent = '批量导入成功！共 ' + importCount + ' 条记录'; importMessage.style.display = 'block'; setTimeout(function(){ importMessage.style.display = 'none'; }, 3000); }
+            function exportToExcel(){ if (multilingualData.length === 0) { alert('没有可导出的数据'); return; } var wb = XLSX.utils.book_new(); var excelData = multilingualData.map(function(item){ return { language: languageCodeToName[item.language] || item.language, title: item.title, content: item.content, sender: "", footerDesc: "", footerUrl: "" }; }); var ws = XLSX.utils.json_to_sheet(excelData); XLSX.utils.book_append_sheet(wb, ws, '模板'); XLSX.writeFile(wb, '多语言内容模板.xlsx'); var exportMessage = document.getElementById('exportMessage'); exportMessage.style.display = 'block'; setTimeout(function(){ exportMessage.style.display = 'none'; }, 2000); }
+            function clearForm(){ document.getElementById('title').value = ''; document.getElementById('content').value = ''; }
+            function clearAllContent(){ if (confirm('确定要清空所有语言内容吗？此操作不可撤销！')) { multilingualData = []; initLanguageSelector(); updateJsonOutput(); document.getElementById('contentTitle').textContent = '请选择一种语言'; document.getElementById('contentBody').textContent = ''; var clearAllMessage = document.getElementById('clearAllMessage'); clearAllMessage.style.display = 'block'; setTimeout(function(){ clearAllMessage.style.display = 'none'; }, 2000); } }
+            function copyJsonToClipboard(){ var jsonOutput = document.getElementById('jsonOutput'); if (jsonOutput.textContent !== '没有可用的语言数据，请添加内容后再试。') { navigator.clipboard.writeText(jsonOutput.textContent).then(function(){ var copyMessage = document.getElementById('copyMessage'); copyMessage.style.display = 'block'; setTimeout(function(){ copyMessage.style.display = 'none'; }, 2000); }).catch(function(err){ alert('复制失败，请手动复制'); }); } else { alert('没有可用的语言数据，请添加内容后再试。'); } }
+            function init(){ initLanguageSelector(); updateJsonOutput(); document.getElementById('addButton').addEventListener('click', addNewContent); document.getElementById('clearButton').addEventListener('click', clearForm); document.getElementById('clearAllButton').addEventListener('click', clearAllContent); document.getElementById('copyButton').addEventListener('click', copyJsonToClipboard); document.getElementById('exportButton').addEventListener('click', exportToExcel); document.getElementById('fileInput').addEventListener('change', handleFileUpload); }
+            document.addEventListener('DOMContentLoaded', init);
+        })();
     </script>
 </body>
 </html>
